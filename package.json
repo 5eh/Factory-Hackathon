@@ -1,0 +1,47 @@
+{
+  "name": "ARTHUR LABS",
+  "version": "0.2.1",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "packages/hardhat",
+      "packages/nextjs"
+    ]
+  },
+  "scripts": {
+    "account": "pnpm workspace @se-2/hardhat account",
+    "chain": "pnpm workspace @se-2/hardhat chain",
+    "fork": "pnpm workspace @se-2/hardhat fork",
+    "deploy": "cd packages/hardhat && pnpm run deploy",
+    "verify": "pnpm workspace @se-2/hardhat verify",
+    "hardhat-verify": "pnpm workspace @se-2/hardhat hardhat-verify",
+    "compile": "pnpm workspace @se-2/hardhat compile",
+    "generate": "pnpm workspace @se-2/hardhat generate",
+    "flatten": "pnpm workspace @se-2/hardhat flatten",
+    "hardhat:lint": "pnpm workspace @se-2/hardhat lint",
+    "hardhat:lint-staged": "pnpm workspace @se-2/hardhat lint-staged",
+    "hardhat:format": "pnpm workspace @se-2/hardhat format",
+    "hardhat:test": "pnpm workspace @se-2/hardhat test",
+    "test": "pnpm hardhat:test",
+    "format": "pnpm next:format && yarn hardhat:format",
+    "start": "pnpm workspace @se-2/nextjs dev",
+    "next:lint": "pnpm workspace @se-2/nextjs lint",
+    "next:format": "pnpm workspace @se-2/nextjs format",
+    "next:check-types": "pnpm workspace @se-2/nextjs check-types",
+    "next:build": "pnpm workspace @se-2/nextjs build",
+    "next:serve": "pnpm workspace @se-2/nextjs serve",
+    "precommit": "lint-staged",
+    "vercel": "pnpm workspace @se-2/nextjs vercel",
+    "vercel:yolo": "pnpm workspace @se-2/nextjs vercel:yolo"
+  },
+  "packageManager": "pnpm@8.15.8",
+  "devDependencies": {
+    "lint-staged": "^13.0.3"
+  },
+  "engines": {
+    "node": ">=18.17.0"
+  },
+  "dependencies": {
+    "@headlessui/react": "^2.1.0"
+  }
+}
