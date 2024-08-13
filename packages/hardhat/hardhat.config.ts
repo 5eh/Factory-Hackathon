@@ -10,11 +10,11 @@ import "@nomicfoundation/hardhat-verify";
 import "hardhat-deploy";
 import "hardhat-deploy-ethers";
 import "@openzeppelin/hardhat-upgrades"; // Import OpenZeppelin upgrades plugin
+// import { RPC_URL } from "../../configuration/blockchain.js";
 
-// If not set, it uses ours Alchemy's default API key.
-// You can get your own at https://dashboard.alchemyapi.io
 const providerApiKey = process.env.ALCHEMY_API_KEY || "oKxs-03sij-U_N0iOlrSsZFr29-IqbuF";
-// If not set, it uses the hardhat account 0 private key.
+const customProviderApiKey = process.env.CUSTOM_PROVIDER_API_KEY || "oKxs-03sij-U_N0iOlrSsZFr29-IqbuF";
+
 const deployerPrivateKey =
   process.env.DEPLOYER_PRIVATE_KEY ?? "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
 // If not set, it uses ours Etherscan default API key.
@@ -59,6 +59,10 @@ const config: HardhatUserConfig = {
       url: "https://opbnb-mainnet-rpc.bnbchain.org/",
       accounts: [deployerPrivateKey],
     },
+    // custom: {
+    //   url: `${RPC_URL}${customProviderApiKey}`,
+    //   accounts: [deployerPrivateKey],
+    // },
     opBNBTestnet: {
       url: "https://opbnb-testnet-rpc.bnbchain.org/",
       accounts: [deployerPrivateKey],

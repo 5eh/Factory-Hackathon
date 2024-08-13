@@ -1,24 +1,39 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useGlobalState } from "~~/services/store/store";
 import { NATIVE_TOKEN } from "../../../configuration/company";
-
-// Call async const function to: https://op-bnb-mainnet-explorer-api.nodereal.io/api/token/getPrice?symbol=bnb&data=total
-// Retrieve USD conversion - Display
+import { TOKEN_ID } from "../../../configuration/blockchain";
 
 export const StickyPriceConversion = () => {
-  const nativeCurrencyPrice = useGlobalState(state => state.nativeCurrency.price);
+  const [nativeCurrencyPrice, setNativeCurrencyPrice] = useState(null);
   const [showInUSD, setShowInUSD] = useState(true);
+
+  // Fetch the price of ETH in USD using CoinGecko API
+  useEffect(() => {
+    const fetchPrice = async () => {
+      try {
+        const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${TOKEN_ID}&vs_currencies=usd`);
+        const data = await response.json();
+        if (data[TOKEN_ID] && data[TOKEN_ID].usd) {
+          setNativeCurrencyPrice(data[TOKEN_ID].usd);
+        }
+      } catch (error) {
+        console.error("Error fetching the price from CoinGecko API:", error);
+      }
+    };
+
+    fetchPrice();
+  }, []);
 
   const toggleCurrency = () => {
     setShowInUSD(!showInUSD);
   };
 
-  const equivalentEthForOneUSD = (1 / nativeCurrencyPrice).toFixed(6);
+  const equivalentEthForOneUSD = nativeCurrencyPrice ? (1 / nativeCurrencyPrice).toFixed(6) : null;
 
   return (
     <div className="min-h-0 py-5 px-1 mb-10 lg:mb-0 hover:cursor-crosshair">
       <div className="fixed items-center w-fit z-10 p-4 bottom-0 left-0">
-        {nativeCurrencyPrice > 0 && (
+        {nativeCurrencyPrice && (
           <div>
             <button
               onClick={toggleCurrency}
