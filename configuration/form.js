@@ -6,38 +6,39 @@
 
 export const FORM_SELECTION = [
   {
-    id: "Apperal",
-    title: "Apperal",
+    id: "Construction",
+    title: "Construction Services",
     imageUrl:
-      "https://images.unsplash.com/photo-1503341504253-dff4815485f1?q=80&w=2787&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1683372101362-2efc3e75650e?q=80&w=2938&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
   },
   {
-    id: "Electronics",
-    title: "Electronics",
-    imageUrl: "https://i.redd.it/k1th39crijw61.jpg",
-  },
-  {
-    id: "Entertainment",
-    title: "Entertainment",
+    id: "Tasks",
+    title: "Physical task services",
     imageUrl:
-      "https://images.unsplash.com/photo-1486572788966-cfd3df1f5b42?q=80&w=2944&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://plus.unsplash.com/premium_photo-1663050901483-ee8703cc8372?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
   },
   {
-    id: "Commerce",
-    title: "Commerce",
+    id: "Creative",
+    title: "Creative Services",
+    imageUrl:
+      "https://plus.unsplash.com/premium_photo-1661335231844-b66fc5284398?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  },
+  {
+    id: "Physical",
+    title: "Physical Services",
     imageUrl:
       "https://images.unsplash.com/photo-1592903297149-37fb25202dfa?q=80&w=2785&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
   },
   {
-    id: "Garden",
-    title: "Garden",
+    id: "Event",
+    title: "Event Services",
     imageUrl:
-      "https://images.unsplash.com/photo-1458966480358-a0ac42de0a7a?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=2832&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
   },
   {
-    id: "Assets",
-    title: "Assets",
+    id: "Business",
+    title: "Business Related",
     imageUrl:
-      "https://images.unsplash.com/photo-1718752773178-a02768f6355d?q=80&w=2787&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://plus.unsplash.com/premium_photo-1661484676444-0ea913f6a630?q=80&w=2652&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
   },
 ];

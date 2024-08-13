@@ -2,7 +2,7 @@
 
 // TITLE (-) COMPANY. Suggest to keep as - / * >>
 export const TITLE_BREAKER = "-";
-export const DEFAULT_TITLE = "Vara";
+export const DEFAULT_TITLE = "Localize Istanbul";
 
 // Home page
 export const HOME_TITLE = "Home";

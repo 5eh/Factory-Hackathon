@@ -1,179 +1,190 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract ServiceContract {
-    struct Service {
+contract ListingContract {
+    address private owner;
+    address private deployer;
+    string[] public listingsArray;
+
+    mapping(string => ServiceData) public services;
+    mapping(string => address) private serviceBuyers;
+    mapping(address => string) private serviceLocations;
+    mapping(address => string) private customRequirements;
+
+    event ServiceListed(
+        string listingID,
+        address owner,
+        uint price,
+        uint32 quantity
+    );
+    event ServicePurchased(string listingID, address buyer, uint32 quantity);
+    event ServiceCompleted(string listingID, address owner);
+    event ServiceLocationUpdated(address user, string serviceLocation);
+    event CustomRequirementsUpdated(address user, string requirements);
+    event ServiceDataFetched(string listingID, ServiceData service);
+
+    struct ServiceData {
         string title;
         string description;
-        string photoURL;
-        string serviceLocation;
-        string baseServiceDetails;
-        string[] upcharges;
-        uint256[] upchargePrices;
-        string providerName;
-        uint validityTime;
-        uint servicePrice;
-        bool isAuthentic;
-    }
-
-    struct Order {
-        address buyer;
-        string buyerName;
-        string serviceLocation;
-        uint quantity;
-        string customInstructions;
-        string[] selectedUpcharges;
-        uint totalPrice;
+        string location;
+        string completionRequirements;
+        string termsOfService;
+        string image;
+        uint price;
+        uint32 timeValidity;
+        uint32 quantity;
+        address payable creatorWallet;
         bool isCompleted;
-        string receiptImageURL;
     }
 
-    struct ContractInfo {
-        Service service;
-        address provider;
-        uint servicePrice;
-        uint contractTimestamp;
-        address contractAddress;
+    constructor() {
+        owner = msg.sender;
+        deployer = msg.sender;
     }
 
-    Service public service;
-    address public provider;
-    mapping(address => Order) public orders;
-    address[] public customers;
-    uint public totalOrders;
-    uint public contractTimestamp;
-
-    event ServiceListed(address provider, Service service);
-    event OrderPlaced(address customer, Order order);
-    event OrderCompleted(address customer, Order order);
-
-    modifier onlyProvider() {
-        require(msg.sender == provider, "Only service provider can perform this action");
+    modifier onlyOwnerOrDeployer() {
+        require(
+            msg.sender == owner || msg.sender == deployer,
+            "Not authorized"
+        );
         _;
     }
 
-    modifier validOrder() {
-        require(orders[msg.sender].buyer == address(0), "Order already placed");
-        _;
-    }
-
-    constructor(
+    function createService(
         string memory _title,
         string memory _description,
-        string memory _photoURL,
-        string memory _serviceLocation,
-        string memory _baseServiceDetails,
-        string[] memory _upcharges,
-        uint256[] memory _upchargePrices,
-        string memory _providerName,
-        uint _validityTime,
-        uint _servicePrice,
-        uint _contractTimestamp
-    ) {
-        require(_upcharges.length == _upchargePrices.length, "Upcharges and prices must be of the same length");
+        string memory _location,
+        string memory _completionRequirements,
+        string memory _termsOfService,
+        string memory _image,
+        uint _price,
+        uint32 _timeValidity,
+        uint32 _quantity,
+        string memory _listingID
+    ) public {
+        require(
+            services[_listingID].creatorWallet == address(0),
+            "Listing ID already exists"
+        );
 
-        provider = msg.sender;
-        service = Service({
+        services[_listingID] = ServiceData({
             title: _title,
             description: _description,
-            photoURL: _photoURL,
-            serviceLocation: _serviceLocation,
-            baseServiceDetails: _baseServiceDetails,
-            upcharges: _upcharges,
-            upchargePrices: _upchargePrices,
-            providerName: _providerName,
-            validityTime: _validityTime,
-            servicePrice: _servicePrice,
-            isAuthentic: false
-        });
-        contractTimestamp = _contractTimestamp;
-
-        emit ServiceListed(provider, service);
-    }
-
-    function placeOrder(
-        string memory _buyerName,
-        string memory _serviceLocation,
-        uint _quantity,
-        string memory _customInstructions,
-        string[] memory _selectedUpcharges
-    ) public payable validOrder {
-        require(_quantity > 0, "Invalid quantity");
-
-        uint totalPrice = calculateTotalPrice(_quantity, _selectedUpcharges);
-        require(msg.value >= totalPrice, "Insufficient payment");
-
-        orders[msg.sender] = Order({
-            buyer: msg.sender,
-            buyerName: _buyerName,
-            serviceLocation: _serviceLocation,
+            location: _location,
+            completionRequirements: _completionRequirements,
+            termsOfService: _termsOfService,
+            image: _image,
+            price: _price,
+            timeValidity: _timeValidity,
             quantity: _quantity,
-            customInstructions: _customInstructions,
-            selectedUpcharges: _selectedUpcharges,
-            totalPrice: totalPrice,
-            isCompleted: false,
-            receiptImageURL: ""
+            creatorWallet: payable(msg.sender),
+            isCompleted: false
         });
-
-        customers.push(msg.sender);
-        totalOrders += 1;
-
-        emit OrderPlaced(msg.sender, orders[msg.sender]);
+        listingsArray.push(_listingID);
+        emit ServiceListed(_listingID, msg.sender, _price, _quantity);
+        emit ServiceDataFetched(_listingID, services[_listingID]);
     }
 
-    function completeOrder(
-        address _customer,
-        string memory _receiptImageURL
-    ) public onlyProvider {
-        require(orders[_customer].buyer != address(0), "Order does not exist");
-        orders[_customer].isCompleted = true;
-        orders[_customer].receiptImageURL = _receiptImageURL;
-
-        emit OrderCompleted(_customer, orders[_customer]);
+    function purchaseService(
+        string memory _listingID,
+        uint32 _quantity
+    ) public payable {
+        ServiceData storage service = services[_listingID];
+        require(_quantity <= service.quantity, "Not enough services available");
+        require(
+            msg.value == service.price * _quantity,
+            "Incorrect amount of Ether sent"
+        );
+        service.quantity -= _quantity;
+        serviceBuyers[_listingID] = msg.sender;
+        emit ServicePurchased(_listingID, msg.sender, _quantity);
     }
 
-    function calculateTotalPrice(
-        uint _quantity,
-        string[] memory _selectedUpcharges
-    ) internal view returns (uint) {
-        uint totalPrice = _quantity * service.servicePrice;
+    function confirmCompletion(
+        string memory _listingID,
+        address clientWallet
+    ) public {
+        require(
+            msg.sender == services[_listingID].creatorWallet,
+            "Only the service provider can confirm completion"
+        );
+        require(!services[_listingID].isCompleted, "Service already completed");
 
-        for (uint i = 0; i < _selectedUpcharges.length; i++) {
-            for (uint j = 0; j < service.upcharges.length; j++) {
-                if (keccak256(abi.encodePacked(_selectedUpcharges[i])) == keccak256(abi.encodePacked(service.upcharges[j]))) {
-                    totalPrice += service.upchargePrices[j];
-                }
-            }
+        address buyer = serviceBuyers[_listingID];
+        require(
+            buyer == clientWallet,
+            "Client wallet address does not match the buyer"
+        );
+        require(buyer != address(0), "No buyer found for this listing");
+
+        string memory serviceLocation = serviceLocations[buyer];
+        require(
+            bytes(serviceLocation).length > 0,
+            "Client has not set a service location"
+        );
+
+        services[_listingID].isCompleted = true;
+        services[_listingID].creatorWallet.transfer(address(this).balance);
+
+        emit ServiceCompleted(_listingID, msg.sender);
+    }
+
+    function setServiceLocation(string memory _serviceLocation) public {
+        serviceLocations[msg.sender] = _serviceLocation;
+        emit ServiceLocationUpdated(msg.sender, _serviceLocation);
+    }
+
+    function getServiceLocation(
+        address user
+    ) public view returns (string memory) {
+        require(
+            bytes(serviceLocations[user]).length > 0,
+            "No service location set by this user. Are you sure they have purchased?"
+        );
+        return serviceLocations[user];
+    }
+
+    function setCustomRequirements(string memory _requirements) public {
+        customRequirements[msg.sender] = _requirements;
+        emit CustomRequirementsUpdated(msg.sender, _requirements);
+    }
+
+    function getAllListings() public view returns (string[] memory) {
+        return listingsArray;
+    }
+
+    function getCustomRequirements(
+        address user
+    ) public view returns (string memory) {
+        require(
+            bytes(customRequirements[user]).length > 0,
+            "No custom requirements set for this user. Are you sure they have purchased?"
+        );
+        return customRequirements[user];
+    }
+
+    function getServiceData(
+        string memory listingID
+    ) public view returns (ServiceData memory) {
+        require(
+            services[listingID].creatorWallet != address(0),
+            "Service does not exist"
+        );
+        return services[listingID];
+    }
+
+    function getAllServiceData()
+        public
+        view
+        returns (string[] memory, ServiceData[] memory)
+    {
+        uint256 length = listingsArray.length;
+        ServiceData[] memory allServices = new ServiceData[](length);
+
+        for (uint256 i = 0; i < length; i++) {
+            allServices[i] = services[listingsArray[i]];
         }
-        return totalPrice;
-    }
 
-    function getOrder(address _customer) public view returns (Order memory) {
-        return orders[_customer];
-    }
-
-    function withdraw() public onlyProvider {
-        require(totalOrders > 0, "No orders placed");
-        bool allOrdersCompleted = true;
-
-        for (uint i = 0; i < customers.length; i++) {
-            if (!orders[customers[i]].isCompleted) {
-                allOrdersCompleted = false;
-                break;
-            }
-        }
-
-        require(allOrdersCompleted, "All orders must be completed before withdrawal");
-        payable(provider).transfer(address(this).balance);
-    }
-
-    function getContractInfo() public view returns (ContractInfo memory) {
-        return ContractInfo({
-            service: service,
-            provider: provider,
-            servicePrice: service.servicePrice,
-            contractTimestamp: contractTimestamp,
-            contractAddress: address(this)
-        });
+        return (listingsArray, allServices);
     }
 }
