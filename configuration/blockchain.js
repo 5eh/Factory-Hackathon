@@ -10,6 +10,13 @@
 export const BLOCKCHAIN_NETWORK = "opbnbTestnet";
 export const TOKEN_ID = "binancecoin"; // Read header
 
+export const NATIVE_CURRENCY_DECIMALS = 18; // Found in docs, typically 18
+export const DISPLAYED_CURRENCY_DECIMALS = 6;
+
+// -------------------------------------------------------------------------------------
+// TO DO:
+// -------------------------------------------------------------------------------------
+
 // Custom RPC for an EVM. Only touch if you know what you're doing.
 // export const BLOCKCHAIN_NAME = "opBNB"; // Network Name
 // export const RPC_URL_DEFAULT = "https://opbnb-testnet-rpc.bnbchain.org/"; // Default RPC URL, found in docs or discord community
@@ -18,4 +25,3 @@ export const TOKEN_ID = "binancecoin"; // Read header
 // export const BLOCKCHAIN_CHAIN_NETWORK = "opBNB"; // Found in docs
 // export const NATIVE_TOKEN_NAME = "tBNB"; // Found in docs
 // export const NATIVE_TOKEN_SYMBOL = "tBNB"; // Found in docs
-// export const NATIVE_CURRENCY_DECIMALS = 18; // Found in docs, typically 18
