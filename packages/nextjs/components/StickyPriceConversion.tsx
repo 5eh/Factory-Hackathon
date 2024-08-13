@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { useGlobalState } from "~~/services/store/store";
 import { NATIVE_TOKEN } from "../../../configuration/company";
 
-/**
- * Site footer
- */
+// Call async const function to: https://op-bnb-mainnet-explorer-api.nodereal.io/api/token/getPrice?symbol=bnb&data=total
+// Retrieve USD conversion - Display
+
 export const StickyPriceConversion = () => {
   const nativeCurrencyPrice = useGlobalState(state => state.nativeCurrency.price);
   const [showInUSD, setShowInUSD] = useState(true);

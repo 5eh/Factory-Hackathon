@@ -6,6 +6,8 @@
     "chain": "hardhat node --network hardhat --no-deploy",
     "compile": "hardhat compile",
     "deploy": "hardhat deploy",
+    "deploy:opBNB": "hardhat deploy --network opBNB",
+    "deploy:opBNBTestnet": "hardhat deploy --network opBNBTestnet",
     "fork": "MAINNET_FORKING_ENABLED=true hardhat node --network hardhat --no-deploy",
     "generate": "hardhat run scripts/generateAccount.ts",
     "flatten": "hardhat flatten",
