@@ -4,6 +4,10 @@ node_modules
 # env files
 .env
 
+# Nextjs
+out/
+.next/
+
 # coverage
 coverage
 coverage.json
