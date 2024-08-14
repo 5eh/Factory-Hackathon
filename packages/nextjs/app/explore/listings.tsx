@@ -14,15 +14,15 @@ export default function Listings({ showInUSD, searchInput, selectedCategory }) {
   const [openPopup, setOpenPopup] = useState({});
 
   const { data: allListings } = useScaffoldReadContract({
-    contractName: "ServiceContracts",
-    functionName: "getAllListings",
+    contractName: "ServiceContract",
+    functionName: "getAllServiceData",
   });
 
   if (!allListings) {
     return <p>Loading listings...</p>;
   }
 
-  console.log("Full Contract Metadata:", JSON.stringify(allListings, null, 2));
+  console.log("Full Contract Metadata:", allListings);
 
   const [listingIDs, productDataArray] = allListings;
 
@@ -52,7 +52,7 @@ export default function Listings({ showInUSD, searchInput, selectedCategory }) {
               <div className="relative sm:h-[75px] md:h-[150px] lg:h-[275px] overflow-hidden border dark:border-gray-500 border-black dark:bg-gray-300/10">
                 <div className="absolute inset-0 flex items-center justify-center">
                   <Image
-                    src={product.photo}
+                    src={product.image}
                     alt={product.title}
                     layout="fill"
                     objectFit="cover"
@@ -62,7 +62,7 @@ export default function Listings({ showInUSD, searchInput, selectedCategory }) {
                 </div>
                 <div className="relative flex items-center justify-center w-full h-full">
                   <Image
-                    src={product.photo}
+                    src={product.image}
                     alt={product.title}
                     layout="fill"
                     objectFit="contain"
@@ -114,7 +114,7 @@ export default function Listings({ showInUSD, searchInput, selectedCategory }) {
                   <div className="relative w-full h-full">
                     <div className="absolute inset-0 flex items-center justify-center filter blur-xl">
                       <Image
-                        src={product.photo}
+                        src={product.image}
                         alt={product.title}
                         layout="fill"
                         objectFit="cover"
@@ -123,7 +123,7 @@ export default function Listings({ showInUSD, searchInput, selectedCategory }) {
                     </div>
                     <div className="relative flex items-center justify-center w-full h-full">
                       <Image
-                        src={product.photo}
+                        src={product.image}
                         alt={product.title}
                         layout="fill"
                         objectFit="contain"
@@ -265,7 +265,7 @@ export default function Listings({ showInUSD, searchInput, selectedCategory }) {
                   <p>MESSAGE {product.title.toUpperCase()}</p>
                 </Link>
                 <Link
-                  href={`/checkout/${listingID}`}
+                  href={`/checkout/${product.creatorWallet}`}
                   className="text-center w-1/2 bg-green-400/20 border border-green-600"
                 >
                   <p>CONTINUE TO CHECKOUT</p>

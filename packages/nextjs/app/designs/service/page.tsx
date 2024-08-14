@@ -69,6 +69,10 @@ const Form: React.FC = () => {
     }
 
     try {
+      const timestamp = Date.now();
+      const uniqueComponent = Math.floor(Math.random() * 1000000);
+      const listingID = `listing-${timestamp}-${uniqueComponent}`;
+
       const price = showInUSD
         ? BigInt(((formData.price / nativeCurrencyPrice) * 10 ** 18).toFixed(0)) // Convert to wei if in USD
         : BigInt(formData.price * 10 ** 18); // Keep as is if in native currency
@@ -83,7 +87,7 @@ const Form: React.FC = () => {
         price,
         0, // Placeholder for timeValidity
         formData.quantity,
-        creatorWallet,
+        listingID,
       ];
 
       await writeYourContractAsync({

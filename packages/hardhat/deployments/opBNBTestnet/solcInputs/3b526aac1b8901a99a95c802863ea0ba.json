@@ -1,0 +1,35 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/ServiceContract.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\n\ncontract ServiceContract {\n\taddress private owner;\n\taddress private deployer;\n\tstring[] public listingsArray;\n\n\tmapping(string => ServiceData) public services;\n\tmapping(string => address) private serviceBuyers;\n\tmapping(address => string) private serviceLocations;\n\tmapping(address => string) private customRequirements;\n\n\tevent ServiceListed(\n\t\tstring listingID,\n\t\taddress owner,\n\t\tuint price,\n\t\tuint32 quantity\n\t);\n\tevent ServicePurchased(string listingID, address buyer, uint32 quantity);\n\tevent ServiceCompleted(string listingID, address owner);\n\tevent ServiceLocationUpdated(address user, string serviceLocation);\n\tevent CustomRequirementsUpdated(address user, string requirements);\n\tevent ServiceDataFetched(string listingID, ServiceData service);\n\n\tstruct ServiceData {\n\t\tstring title;\n\t\tstring description;\n\t\tstring location;\n\t\tstring completionRequirements;\n\t\tstring termsOfService;\n\t\tstring image;\n\t\tuint price;\n\t\tuint32 timeValidity;\n\t\tuint32 quantity;\n\t\taddress payable creatorWallet;\n\t\tbool isCompleted;\n\t\tstring listingID;\n\t}\n\n\tconstructor() {\n\t\towner = msg.sender;\n\t\tdeployer = msg.sender;\n\t}\n\n\tmodifier onlyOwnerOrDeployer() {\n\t\trequire(\n\t\t\tmsg.sender == owner || msg.sender == deployer,\n\t\t\t\"Not authorized\"\n\t\t);\n\t\t_;\n\t}\n\n\tfunction createService(\n\t\tstring memory _title,\n\t\tstring memory _description,\n\t\tstring memory _location,\n\t\tstring memory _completionRequirements,\n\t\tstring memory _termsOfService,\n\t\tstring memory _image,\n\t\tuint _price,\n\t\tuint32 _timeValidity,\n\t\tuint32 _quantity,\n\t\tstring memory _listingID\n\t) public {\n\t\trequire(\n\t\t\tservices[_listingID].creatorWallet == address(0),\n\t\t\t\"Listing ID already exists\"\n\t\t);\n\n\t\tservices[_listingID] = ServiceData({\n\t\t\ttitle: _title,\n\t\t\tdescription: _description,\n\t\t\tlocation: _location,\n\t\t\tcompletionRequirements: _completionRequirements,\n\t\t\ttermsOfService: _termsOfService,\n\t\t\timage: _image,\n\t\t\tprice: _price,\n\t\t\ttimeValidity: _timeValidity,\n\t\t\tquantity: _quantity,\n\t\t\tcreatorWallet: payable(msg.sender),\n\t\t\tisCompleted: false,\n\t\t\tlistingID: _listingID\n\t\t});\n\t\tlistingsArray.push(_listingID);\n\t\temit ServiceListed(_listingID, msg.sender, _price, _quantity);\n\t\temit ServiceDataFetched(_listingID, services[_listingID]);\n\t}\n\n\tfunction purchaseService(\n\t\tstring memory _listingID,\n\t\tuint32 _quantity\n\t) public payable {\n\t\tServiceData storage service = services[_listingID];\n\t\trequire(_quantity <= service.quantity, \"Not enough services available\");\n\t\trequire(\n\t\t\tmsg.value == service.price * _quantity,\n\t\t\t\"Incorrect amount of Ether sent\"\n\t\t);\n\t\tservice.quantity -= _quantity;\n\t\tserviceBuyers[_listingID] = msg.sender;\n\t\temit ServicePurchased(_listingID, msg.sender, _quantity);\n\t}\n\n\tfunction confirmCompletion(\n\t\tstring memory _listingID,\n\t\taddress clientWallet\n\t) public {\n\t\trequire(\n\t\t\tmsg.sender == services[_listingID].creatorWallet,\n\t\t\t\"Only the service provider can confirm completion\"\n\t\t);\n\t\trequire(!services[_listingID].isCompleted, \"Service already completed\");\n\n\t\taddress buyer = serviceBuyers[_listingID];\n\t\trequire(\n\t\t\tbuyer == clientWallet,\n\t\t\t\"Client wallet address does not match the buyer\"\n\t\t);\n\t\trequire(buyer != address(0), \"No buyer found for this listing\");\n\n\t\tstring memory serviceLocation = serviceLocations[buyer];\n\t\trequire(\n\t\t\tbytes(serviceLocation).length > 0,\n\t\t\t\"Client has not set a service location\"\n\t\t);\n\n\t\tservices[_listingID].isCompleted = true;\n\t\tservices[_listingID].creatorWallet.transfer(address(this).balance);\n\n\t\temit ServiceCompleted(_listingID, msg.sender);\n\t}\n\n\tfunction setServiceLocation(string memory _serviceLocation) public {\n\t\tserviceLocations[msg.sender] = _serviceLocation;\n\t\temit ServiceLocationUpdated(msg.sender, _serviceLocation);\n\t}\n\n\tfunction getServiceLocation(\n\t\taddress user\n\t) public view returns (string memory) {\n\t\trequire(\n\t\t\tbytes(serviceLocations[user]).length > 0,\n\t\t\t\"No service location set by this user. Are you sure they have purchased?\"\n\t\t);\n\t\treturn serviceLocations[user];\n\t}\n\n\tfunction setCustomRequirements(string memory _requirements) public {\n\t\tcustomRequirements[msg.sender] = _requirements;\n\t\temit CustomRequirementsUpdated(msg.sender, _requirements);\n\t}\n\n\tfunction getAllListings() public view returns (string[] memory) {\n\t\treturn listingsArray;\n\t}\n\n\tfunction getCustomRequirements(\n\t\taddress user\n\t) public view returns (string memory) {\n\t\trequire(\n\t\t\tbytes(customRequirements[user]).length > 0,\n\t\t\t\"No custom requirements set for this user. Are you sure they have purchased?\"\n\t\t);\n\t\treturn customRequirements[user];\n\t}\n\n\tfunction getServiceData(\n\t\tstring memory listingID\n\t) public view returns (ServiceData memory) {\n\t\trequire(\n\t\t\tservices[listingID].creatorWallet != address(0),\n\t\t\t\"Service does not exist\"\n\t\t);\n\t\treturn services[listingID];\n\t}\n\n\tfunction getAllServiceData()\n\t\tpublic\n\t\tview\n\t\treturns (string[] memory, ServiceData[] memory)\n\t{\n\t\tuint256 length = listingsArray.length;\n\t\tServiceData[] memory allServices = new ServiceData[](length);\n\n\t\tfor (uint256 i = 0; i < length; i++) {\n\t\t\tallServices[i] = services[listingsArray[i]];\n\t\t}\n\n\t\treturn (listingsArray, allServices);\n\t}\n}\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}

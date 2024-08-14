@@ -4,7 +4,7 @@
 
 export const MARKETPLACE_TITLE = "Localize Istanbul";
 export const MARKETPLACE_DESCRIPTION =
-  "The only Web3 real world based task marketplace.."; // Short description of the marketplace
+  "The only Web3 real world based service marketplace on Binance."; // Short description of the marketplace
 export const MARKETPLACE_DESCRIPTION_LONG =
   "Buy and exchange services in the real world, pay with your Optimism."; // Long description of the marketplace
 

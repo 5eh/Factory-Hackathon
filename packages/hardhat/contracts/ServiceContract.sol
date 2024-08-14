@@ -34,7 +34,7 @@ contract ServiceContract {
 		uint32 timeValidity;
 		uint32 quantity;
 		address payable creatorWallet;
-		bool isCompleted;
+		string listingID;
 	}
 
 	constructor() {
@@ -77,8 +77,8 @@ contract ServiceContract {
 			price: _price,
 			timeValidity: _timeValidity,
 			quantity: _quantity,
-			creatorWallet: payable(msg.sender),
-			isCompleted: false
+			creatorWallet: payable(msg.sender), // Use msg.sender directly
+			listingID: _listingID
 		});
 		listingsArray.push(_listingID);
 		emit ServiceListed(_listingID, msg.sender, _price, _quantity);
