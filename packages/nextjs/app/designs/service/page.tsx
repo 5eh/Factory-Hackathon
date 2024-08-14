@@ -7,30 +7,96 @@ import {
   DISPLAYED_CURRENCY_DECIMALS,
   NATIVE_CURRENCY_DECIMALS,
 } from "../../../../../configuration/blockchain";
+import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { useAccount } from "wagmi";
 
 const Form: React.FC = () => {
+  const { writeContractAsync: writeYourContractAsync } = useScaffoldWriteContract("ServiceContract");
+  const [nativeCurrencyPrice, setNativeCurrencyPrice] = useState<number | null>(null);
+  const [showInUSD, setShowInUSD] = useState(true);
+  const creatorWallet = useAccount();
   const [formData, setFormData] = useState({
     title: "",
     price: 1,
-    priceConversion: "",
     description: "",
     imageInput: "",
     quantity: "",
-    city: "",
-    state: "",
+    location: "",
     radiusOfWork: "",
-    upcharges: [{ upcharge: "", value: "" }],
-    cost: "",
+    upcharges: [] as { upcharge: string; value: string }[],
     features: [""],
-    value: "",
     terms: "",
     promise: "",
     serviceProviderName: "",
     business: "",
+    photo: "", // To store the image URL from imgbb
   });
 
-  const [nativeCurrencyPrice, setNativeCurrencyPrice] = useState<number | null>(null);
-  const [showInUSD, setShowInUSD] = useState(true);
+  // Handle file change and upload to imgbb API
+  const fileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const form = new FormData();
+    form.append("image", file);
+
+    try {
+      const response = await fetch(`https://api.imgbb.com/1/upload?key=94d67511d33d7f7cdd49759c1bbb4a8d`, {
+        method: "POST",
+        body: form,
+      });
+      const data = await response.json();
+      setFormData({ ...formData, photo: data.data.url }); // Store the image URL in formData.photo
+    } catch (error) {
+      console.error("Error uploading image:", error);
+    }
+  };
+
+  // Handle city and state input and merge into location
+  const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const updatedLocation =
+      name === "city"
+        ? `${value}, ${formData.location.split(", ")[1] || ""}`
+        : `${formData.location.split(", ")[0] || ""}, ${value}`;
+    setFormData({ ...formData, location: updatedLocation });
+  };
+
+  const handleSubmit = async () => {
+    if (!formData.title || !formData.description || !formData.price || !formData.quantity) {
+      console.error("Title, description, price, and quantity of service are required.");
+      return;
+    }
+
+    try {
+      const price = showInUSD
+        ? BigInt(((formData.price / nativeCurrencyPrice) * 10 ** 18).toFixed(0)) // Convert to wei if in USD
+        : BigInt(formData.price * 10 ** 18); // Keep as is if in native currency
+
+      const args = [
+        formData.title,
+        formData.description,
+        formData.location,
+        formData.promise,
+        formData.terms,
+        formData.photo, // Pass the image URL
+        price,
+        0, // Placeholder for timeValidity
+        formData.quantity,
+        creatorWallet,
+      ];
+
+      await writeYourContractAsync({
+        functionName: "createService",
+        args: args,
+        overrides: {
+          gasLimit: 300000,
+        },
+      });
+    } catch (error) {
+      console.error("Error creating product:", error);
+    }
+  };
 
   // Feature change
   const handleFeatureChange = (index: number, value: string) => {
@@ -186,7 +252,7 @@ const Form: React.FC = () => {
               <input
                 type="file"
                 id="input_img"
-                // onChange={fileChange}
+                onChange={fileChange} // Attach file change handler
                 className="px-4 lg:mt-8 lg:mb-8 py-2 border dark:border-white border-black bg-gray-300/10 dark:bg-gray-300/10 dark:text-white w-3/4 hover:ring-2 hover:ring-primary/50 "
               />
               <div className="w-full border border-transparent border-t-black dark:border-t-white pt-1" />
@@ -209,8 +275,8 @@ const Form: React.FC = () => {
               <input
                 type="text"
                 name="city"
-                value={formData.city}
-                onChange={handleInputChange}
+                value={formData.location.split(", ")[0]} // Display only the city
+                onChange={handleLocationChange} // Merge city and state
                 className="text-left border-b border-gray-900 dark:border-gray-200/20 w-full bg-gray-500/20 py-2 px-3 text-sm leading-6 text-gray-800 dark:text-gray-300 focus:bg-gray-700/20 focus:border-primary/40 hover:border-primary/60 focus:outline-none"
                 placeholder="Enter city"
               />
@@ -221,8 +287,8 @@ const Form: React.FC = () => {
               <input
                 type="text"
                 name="state"
-                value={formData.state}
-                onChange={handleInputChange}
+                value={formData.location.split(", ")[1]} // Display only the state
+                onChange={handleLocationChange} // Merge city and state
                 className="text-left border-b border-gray-900 dark:border-gray-200/20 w-full bg-gray-500/20 py-2 px-3 text-sm leading-6 text-gray-800 dark:text-gray-300 focus:bg-gray-700/20 focus:border-primary/40 hover:border-primary/60 focus:outline-none"
                 placeholder="Enter state"
               />
@@ -230,14 +296,17 @@ const Form: React.FC = () => {
             {/* Radius of Work */}
             <div className="col-span-1">
               <label className="block text-sm font-medium text-gray-700 code">RADIUS OF WORK</label>
-              <input
-                type="text"
-                name="radiusOfWork"
-                value={formData.radiusOfWork}
-                onChange={handleInputChange}
-                className="text-left border-b border-gray-900 dark:border-gray-200/20 w-full bg-gray-500/20 py-2 px-3 text-sm leading-6 text-gray-800 dark:text-gray-300 focus:bg-gray-700/20 focus:border-primary/40 hover:border-primary/60 focus:outline-none"
-                placeholder="Enter radius"
-              />
+              <div className="relative">
+                <input
+                  type="text"
+                  name="radiusOfWork"
+                  value={formData.radiusOfWork}
+                  onChange={handleInputChange}
+                  className="text-left border-b border-gray-900 dark:border-gray-200/20 w-full bg-gray-500/20 py-2 px-3 text-sm leading-6 text-gray-800 dark:text-gray-300 focus:bg-gray-700/20 focus:border-primary/40 hover:border-primary/60 focus:outline-none"
+                  placeholder="Enter radius"
+                />
+                <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500">kilometers</span>
+              </div>
             </div>
             {/* Features */}
             <div className="col-span-4">
@@ -270,7 +339,6 @@ const Form: React.FC = () => {
               </button>
             </div>
 
-            {/* Upcharges */}
             {/* Upcharges */}
             <div className="col-span-4">
               <label htmlFor="upcharges" className="block text-sm font-medium leading-6 text-gray-900 dark:text-white">
@@ -384,6 +452,7 @@ const Form: React.FC = () => {
               <button
                 type="submit"
                 className="mt-2 w-full bg-primary/50 hover:bg-primary/60 code border-primary/80 border hover:border-primary text-white p-2 rounded-none transition hover:ease-in-out "
+                onClick={handleSubmit} // Attach handleSubmit to the button
               >
                 SUBMIT YOUR POST AND GET SOME BUSINESS!
               </button>

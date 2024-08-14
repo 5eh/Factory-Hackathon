@@ -14,13 +14,15 @@ export default function Listings({ showInUSD, searchInput, selectedCategory }) {
   const [openPopup, setOpenPopup] = useState({});
 
   const { data: allListings } = useScaffoldReadContract({
-    contractName: "CommerceContract",
-    functionName: "getAllProductData",
+    contractName: "ServiceContracts",
+    functionName: "getAllListings",
   });
 
   if (!allListings) {
     return <p>Loading listings...</p>;
   }
+
+  console.log("Full Contract Metadata:", JSON.stringify(allListings, null, 2));
 
   const [listingIDs, productDataArray] = allListings;
 
