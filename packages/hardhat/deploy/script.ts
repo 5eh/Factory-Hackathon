@@ -18,16 +18,16 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
 
-  await deploy("CommerceContract", {
+  await deploy("ServiceContract", {
     from: deployer,
     log: true,
     autoMine: true,
   });
 
-  const yourContract = await hre.ethers.getContract<Contract>("CommerceContract", deployer);
+  const yourContract = await hre.ethers.getContract<Contract>("ServiceContract", deployer);
   console.log("📜 COMMERCE Contract Address:", yourContract.target, "📜");
 };
 
 export default deployYourContract;
 
-deployYourContract.tags = ["CommerceContract"];
+deployYourContract.tags = ["ServiceContract"];

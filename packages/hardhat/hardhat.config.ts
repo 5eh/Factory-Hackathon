@@ -10,7 +10,6 @@ import "@nomicfoundation/hardhat-verify";
 import "hardhat-deploy";
 import "hardhat-deploy-ethers";
 import "@openzeppelin/hardhat-upgrades"; // Import OpenZeppelin upgrades plugin
-import { RPC_URL_DEFAULT } from "../../configuration/blockchain";
 
 const providerApiKey = process.env.ALCHEMY_API_KEY || "oKxs-03sij-U_N0iOlrSsZFr29-IqbuF";
 const customProviderApiKey = process.env.CUSTOM_PROVIDER_API_KEY || "oKxs-03sij-U_N0iOlrSsZFr29-IqbuF";
@@ -45,10 +44,7 @@ const config: HardhatUserConfig = {
         enabled: process.env.MAINNET_FORKING_ENABLED === "true",
       },
     },
-    custom: {
-      url: `${RPC_URL_DEFAULT}/${customProviderApiKey}`,
-      accounts: [deployerPrivateKey],
-    },
+
     mainnet: {
       url: `https://eth-mainnet.alchemyapi.io/v2/${providerApiKey}`,
       accounts: [deployerPrivateKey],

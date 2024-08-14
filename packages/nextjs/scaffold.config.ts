@@ -1,6 +1,5 @@
 import * as chains from "viem/chains";
-import { BLOCKCHAIN_NETWORK } from "~~/../../configuration/blockchain";
-
+import { BLOCKCHAIN_NETWORK } from "../../configuration/blockchain";
 export type ScaffoldConfig = {
   targetNetworks: readonly chains.Chain[];
   pollingInterval: number;

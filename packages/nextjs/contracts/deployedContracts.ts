@@ -6,8 +6,8 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 const deployedContracts = {
   5611: {
-    CommerceContract: {
-      address: "0x6Cd665d56D01CA635B9073cc6a0C1A9c43460039",
+    ServiceContract: {
+      address: "0xd4Aa5B86b4DD1A581ce605DB1A8E4B29e317CC30",
       abi: [
         {
           inputs: [],
@@ -26,30 +26,11 @@ const deployedContracts = {
             {
               indexed: false,
               internalType: "string",
-              name: "instructions",
+              name: "requirements",
               type: "string",
             },
           ],
-          name: "CustomInstructionsUpdated",
-          type: "event",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: false,
-              internalType: "address",
-              name: "user",
-              type: "address",
-            },
-            {
-              indexed: false,
-              internalType: "string",
-              name: "deliveryAddress",
-              type: "string",
-            },
-          ],
-          name: "DeliveryAddressUpdated",
+          name: "CustomRequirementsUpdated",
           type: "event",
         },
         {
@@ -68,7 +49,7 @@ const deployedContracts = {
               type: "address",
             },
           ],
-          name: "DeliveryConfirmed",
+          name: "ServiceCompleted",
           type: "event",
         },
         {
@@ -94,27 +75,22 @@ const deployedContracts = {
                 },
                 {
                   internalType: "string",
-                  name: "photo",
-                  type: "string",
-                },
-                {
-                  internalType: "string",
                   name: "location",
                   type: "string",
                 },
                 {
                   internalType: "string",
-                  name: "shippingMethod",
+                  name: "completionRequirements",
                   type: "string",
                 },
                 {
                   internalType: "string",
-                  name: "upcharges",
+                  name: "termsOfService",
                   type: "string",
                 },
                 {
                   internalType: "string",
-                  name: "category",
+                  name: "image",
                   type: "string",
                 },
                 {
@@ -139,17 +115,17 @@ const deployedContracts = {
                 },
                 {
                   internalType: "bool",
-                  name: "isDelivered",
+                  name: "isCompleted",
                   type: "bool",
                 },
               ],
               indexed: false,
-              internalType: "struct CommerceContract.ProductData",
-              name: "product",
+              internalType: "struct ServiceContract.ServiceData",
+              name: "service",
               type: "tuple",
             },
           ],
-          name: "ProductDataFetched",
+          name: "ServiceDataFetched",
           type: "event",
         },
         {
@@ -180,7 +156,26 @@ const deployedContracts = {
               type: "uint32",
             },
           ],
-          name: "ProductListed",
+          name: "ServiceListed",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "address",
+              name: "user",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "serviceLocation",
+              type: "string",
+            },
+          ],
+          name: "ServiceLocationUpdated",
           type: "event",
         },
         {
@@ -205,7 +200,7 @@ const deployedContracts = {
               type: "uint32",
             },
           ],
-          name: "ProductPurchased",
+          name: "ServicePurchased",
           type: "event",
         },
         {
@@ -217,11 +212,11 @@ const deployedContracts = {
             },
             {
               internalType: "address",
-              name: "customerWallet",
+              name: "clientWallet",
               type: "address",
             },
           ],
-          name: "confirmDelivery",
+          name: "confirmCompletion",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -240,27 +235,22 @@ const deployedContracts = {
             },
             {
               internalType: "string",
-              name: "_photo",
-              type: "string",
-            },
-            {
-              internalType: "string",
               name: "_location",
               type: "string",
             },
             {
               internalType: "string",
-              name: "_shippingMethod",
+              name: "_completionRequirements",
               type: "string",
             },
             {
               internalType: "string",
-              name: "_upcharges",
+              name: "_termsOfService",
               type: "string",
             },
             {
               internalType: "string",
-              name: "_category",
+              name: "_image",
               type: "string",
             },
             {
@@ -284,7 +274,7 @@ const deployedContracts = {
               type: "string",
             },
           ],
-          name: "createProduct",
+          name: "createService",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -304,7 +294,7 @@ const deployedContracts = {
         },
         {
           inputs: [],
-          name: "getAllProductData",
+          name: "getAllServiceData",
           outputs: [
             {
               internalType: "string[]",
@@ -325,27 +315,22 @@ const deployedContracts = {
                 },
                 {
                   internalType: "string",
-                  name: "photo",
-                  type: "string",
-                },
-                {
-                  internalType: "string",
                   name: "location",
                   type: "string",
                 },
                 {
                   internalType: "string",
-                  name: "shippingMethod",
+                  name: "completionRequirements",
                   type: "string",
                 },
                 {
                   internalType: "string",
-                  name: "upcharges",
+                  name: "termsOfService",
                   type: "string",
                 },
                 {
                   internalType: "string",
-                  name: "category",
+                  name: "image",
                   type: "string",
                 },
                 {
@@ -370,11 +355,11 @@ const deployedContracts = {
                 },
                 {
                   internalType: "bool",
-                  name: "isDelivered",
+                  name: "isCompleted",
                   type: "bool",
                 },
               ],
-              internalType: "struct CommerceContract.ProductData[]",
+              internalType: "struct ServiceContract.ServiceData[]",
               name: "",
               type: "tuple[]",
             },
@@ -390,26 +375,7 @@ const deployedContracts = {
               type: "address",
             },
           ],
-          name: "getCustomInstructions",
-          outputs: [
-            {
-              internalType: "string",
-              name: "",
-              type: "string",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "user",
-              type: "address",
-            },
-          ],
-          name: "getDeliveryAddress",
+          name: "getCustomRequirements",
           outputs: [
             {
               internalType: "string",
@@ -428,7 +394,7 @@ const deployedContracts = {
               type: "string",
             },
           ],
-          name: "getProductData",
+          name: "getServiceData",
           outputs: [
             {
               components: [
@@ -444,27 +410,22 @@ const deployedContracts = {
                 },
                 {
                   internalType: "string",
-                  name: "photo",
-                  type: "string",
-                },
-                {
-                  internalType: "string",
                   name: "location",
                   type: "string",
                 },
                 {
                   internalType: "string",
-                  name: "shippingMethod",
+                  name: "completionRequirements",
                   type: "string",
                 },
                 {
                   internalType: "string",
-                  name: "upcharges",
+                  name: "termsOfService",
                   type: "string",
                 },
                 {
                   internalType: "string",
-                  name: "category",
+                  name: "image",
                   type: "string",
                 },
                 {
@@ -489,13 +450,32 @@ const deployedContracts = {
                 },
                 {
                   internalType: "bool",
-                  name: "isDelivered",
+                  name: "isCompleted",
                   type: "bool",
                 },
               ],
-              internalType: "struct CommerceContract.ProductData",
+              internalType: "struct ServiceContract.ServiceData",
               name: "",
               type: "tuple",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "user",
+              type: "address",
+            },
+          ],
+          name: "getServiceLocation",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
             },
           ],
           stateMutability: "view",
@@ -524,11 +504,29 @@ const deployedContracts = {
           inputs: [
             {
               internalType: "string",
+              name: "_listingID",
+              type: "string",
+            },
+            {
+              internalType: "uint32",
+              name: "_quantity",
+              type: "uint32",
+            },
+          ],
+          name: "purchaseService",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
               name: "",
               type: "string",
             },
           ],
-          name: "products",
+          name: "services",
           outputs: [
             {
               internalType: "string",
@@ -542,27 +540,22 @@ const deployedContracts = {
             },
             {
               internalType: "string",
-              name: "photo",
-              type: "string",
-            },
-            {
-              internalType: "string",
               name: "location",
               type: "string",
             },
             {
               internalType: "string",
-              name: "shippingMethod",
+              name: "completionRequirements",
               type: "string",
             },
             {
               internalType: "string",
-              name: "upcharges",
+              name: "termsOfService",
               type: "string",
             },
             {
               internalType: "string",
-              name: "category",
+              name: "image",
               type: "string",
             },
             {
@@ -587,8 +580,533 @@ const deployedContracts = {
             },
             {
               internalType: "bool",
-              name: "isDelivered",
+              name: "isCompleted",
               type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "_requirements",
+              type: "string",
+            },
+          ],
+          name: "setCustomRequirements",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "_serviceLocation",
+              type: "string",
+            },
+          ],
+          name: "setServiceLocation",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+      ],
+      inheritedFunctions: {},
+    },
+  },
+  31337: {
+    ServiceContract: {
+      address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      abi: [
+        {
+          inputs: [],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "address",
+              name: "user",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "requirements",
+              type: "string",
+            },
+          ],
+          name: "CustomRequirementsUpdated",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "string",
+              name: "listingID",
+              type: "string",
+            },
+            {
+              indexed: false,
+              internalType: "address",
+              name: "owner",
+              type: "address",
+            },
+          ],
+          name: "ServiceCompleted",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "string",
+              name: "listingID",
+              type: "string",
+            },
+            {
+              components: [
+                {
+                  internalType: "string",
+                  name: "title",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "description",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "location",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "completionRequirements",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "termsOfService",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "image",
+                  type: "string",
+                },
+                {
+                  internalType: "uint256",
+                  name: "price",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint32",
+                  name: "timeValidity",
+                  type: "uint32",
+                },
+                {
+                  internalType: "uint32",
+                  name: "quantity",
+                  type: "uint32",
+                },
+                {
+                  internalType: "address payable",
+                  name: "creatorWallet",
+                  type: "address",
+                },
+                {
+                  internalType: "bool",
+                  name: "isCompleted",
+                  type: "bool",
+                },
+              ],
+              indexed: false,
+              internalType: "struct ServiceContract.ServiceData",
+              name: "service",
+              type: "tuple",
+            },
+          ],
+          name: "ServiceDataFetched",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "string",
+              name: "listingID",
+              type: "string",
+            },
+            {
+              indexed: false,
+              internalType: "address",
+              name: "owner",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "price",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint32",
+              name: "quantity",
+              type: "uint32",
+            },
+          ],
+          name: "ServiceListed",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "address",
+              name: "user",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "serviceLocation",
+              type: "string",
+            },
+          ],
+          name: "ServiceLocationUpdated",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "string",
+              name: "listingID",
+              type: "string",
+            },
+            {
+              indexed: false,
+              internalType: "address",
+              name: "buyer",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint32",
+              name: "quantity",
+              type: "uint32",
+            },
+          ],
+          name: "ServicePurchased",
+          type: "event",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "_listingID",
+              type: "string",
+            },
+            {
+              internalType: "address",
+              name: "clientWallet",
+              type: "address",
+            },
+          ],
+          name: "confirmCompletion",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "_title",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "_description",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "_location",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "_completionRequirements",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "_termsOfService",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "_image",
+              type: "string",
+            },
+            {
+              internalType: "uint256",
+              name: "_price",
+              type: "uint256",
+            },
+            {
+              internalType: "uint32",
+              name: "_timeValidity",
+              type: "uint32",
+            },
+            {
+              internalType: "uint32",
+              name: "_quantity",
+              type: "uint32",
+            },
+            {
+              internalType: "string",
+              name: "_listingID",
+              type: "string",
+            },
+          ],
+          name: "createService",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "getAllListings",
+          outputs: [
+            {
+              internalType: "string[]",
+              name: "",
+              type: "string[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "getAllServiceData",
+          outputs: [
+            {
+              internalType: "string[]",
+              name: "",
+              type: "string[]",
+            },
+            {
+              components: [
+                {
+                  internalType: "string",
+                  name: "title",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "description",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "location",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "completionRequirements",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "termsOfService",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "image",
+                  type: "string",
+                },
+                {
+                  internalType: "uint256",
+                  name: "price",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint32",
+                  name: "timeValidity",
+                  type: "uint32",
+                },
+                {
+                  internalType: "uint32",
+                  name: "quantity",
+                  type: "uint32",
+                },
+                {
+                  internalType: "address payable",
+                  name: "creatorWallet",
+                  type: "address",
+                },
+                {
+                  internalType: "bool",
+                  name: "isCompleted",
+                  type: "bool",
+                },
+              ],
+              internalType: "struct ServiceContract.ServiceData[]",
+              name: "",
+              type: "tuple[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "user",
+              type: "address",
+            },
+          ],
+          name: "getCustomRequirements",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "listingID",
+              type: "string",
+            },
+          ],
+          name: "getServiceData",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "string",
+                  name: "title",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "description",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "location",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "completionRequirements",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "termsOfService",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "image",
+                  type: "string",
+                },
+                {
+                  internalType: "uint256",
+                  name: "price",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint32",
+                  name: "timeValidity",
+                  type: "uint32",
+                },
+                {
+                  internalType: "uint32",
+                  name: "quantity",
+                  type: "uint32",
+                },
+                {
+                  internalType: "address payable",
+                  name: "creatorWallet",
+                  type: "address",
+                },
+                {
+                  internalType: "bool",
+                  name: "isCompleted",
+                  type: "bool",
+                },
+              ],
+              internalType: "struct ServiceContract.ServiceData",
+              name: "",
+              type: "tuple",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "user",
+              type: "address",
+            },
+          ],
+          name: "getServiceLocation",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "listingsArray",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
             },
           ],
           stateMutability: "view",
@@ -607,7 +1125,7 @@ const deployedContracts = {
               type: "uint32",
             },
           ],
-          name: "purchaseProduct",
+          name: "purchaseService",
           outputs: [],
           stateMutability: "payable",
           type: "function",
@@ -616,11 +1134,80 @@ const deployedContracts = {
           inputs: [
             {
               internalType: "string",
-              name: "_instructions",
+              name: "",
               type: "string",
             },
           ],
-          name: "setCustomInstructions",
+          name: "services",
+          outputs: [
+            {
+              internalType: "string",
+              name: "title",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "description",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "location",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "completionRequirements",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "termsOfService",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "image",
+              type: "string",
+            },
+            {
+              internalType: "uint256",
+              name: "price",
+              type: "uint256",
+            },
+            {
+              internalType: "uint32",
+              name: "timeValidity",
+              type: "uint32",
+            },
+            {
+              internalType: "uint32",
+              name: "quantity",
+              type: "uint32",
+            },
+            {
+              internalType: "address payable",
+              name: "creatorWallet",
+              type: "address",
+            },
+            {
+              internalType: "bool",
+              name: "isCompleted",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "_requirements",
+              type: "string",
+            },
+          ],
+          name: "setCustomRequirements",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -629,11 +1216,11 @@ const deployedContracts = {
           inputs: [
             {
               internalType: "string",
-              name: "_deliveryAddress",
+              name: "_serviceLocation",
               type: "string",
             },
           ],
-          name: "setDeliveryAddress",
+          name: "setServiceLocation",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",

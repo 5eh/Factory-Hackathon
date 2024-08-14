@@ -7,11 +7,11 @@
 // Refer to the TOKEN_ID from this doc: https://docs.google.com/spreadsheets/d/1wTTuxXt8n9q7C4NDXqQpI3wpKu1_5bGVmP9Xz0XGSyU/edit?gid=0#gid=0
 // -------------------------------------------------------------------------------------
 
-export const BLOCKCHAIN_NETWORK = "opbnbTestnet";
-export const TOKEN_ID = "binancecoin"; // Read header
+const BLOCKCHAIN_NETWORK = "opBNBTestnet";
+const TOKEN_ID = "binancecoin"; // Read header
 
-export const NATIVE_CURRENCY_DECIMALS = 18; // Found in docs, typically 18
-export const DISPLAYED_CURRENCY_DECIMALS = 6;
+const NATIVE_CURRENCY_DECIMALS = 18; // Found in docs, typically 18
+const DISPLAYED_CURRENCY_DECIMALS = 6;
 
 // -------------------------------------------------------------------------------------
 // TO DO:
@@ -25,3 +25,10 @@ export const DISPLAYED_CURRENCY_DECIMALS = 6;
 // export const BLOCKCHAIN_CHAIN_NETWORK = "opBNB"; // Found in docs
 // export const NATIVE_TOKEN_NAME = "tBNB"; // Found in docs
 // export const NATIVE_TOKEN_SYMBOL = "tBNB"; // Found in docs
+
+module.exports = {
+  BLOCKCHAIN_NETWORK,
+  TOKEN_ID,
+  NATIVE_CURRENCY_DECIMALS,
+  DISPLAYED_CURRENCY_DECIMALS,
+};

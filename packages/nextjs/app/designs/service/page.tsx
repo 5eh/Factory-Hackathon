@@ -96,6 +96,22 @@ const Form: React.FC = () => {
     return price.toFixed(decimals);
   };
 
+  const toggleUpchargeCurrency = (index: number) => {
+    const newUpcharges = [...formData.upcharges];
+    const currentValue = parseFloat(newUpcharges[index].value || "0");
+
+    if (showInUSD && nativeCurrencyPrice) {
+      // Convert from USD to native token
+      newUpcharges[index].value = (currentValue / nativeCurrencyPrice).toFixed(NATIVE_CURRENCY_DECIMALS);
+    } else if (!showInUSD && nativeCurrencyPrice) {
+      // Convert from native token to USD
+      newUpcharges[index].value = (currentValue * nativeCurrencyPrice).toFixed(2);
+    }
+
+    setFormData({ ...formData, upcharges: newUpcharges });
+    setShowInUSD(!showInUSD); // Toggle the currency display
+  };
+
   return (
     <div className="px-6 lg:px-8">
       <div className="mt-12">
@@ -255,6 +271,7 @@ const Form: React.FC = () => {
             </div>
 
             {/* Upcharges */}
+            {/* Upcharges */}
             <div className="col-span-4">
               <label htmlFor="upcharges" className="block text-sm font-medium leading-6 text-gray-900 dark:text-white">
                 UPCHARGES
@@ -272,16 +289,33 @@ const Form: React.FC = () => {
                       onChange={e => updateUpchargeValue(index, e.target.value, "upcharge")}
                     />
                   </div>
-                  <div className="col-span-1">
+                  <div className="col-span-1 relative">
+                    <div
+                      className="absolute inset-y-0 left-0 flex items-center cursor-pointer pl-3"
+                      onClick={() => toggleUpchargeCurrency(index)}
+                    >
+                      <span className="text-gray-200 text-md font-semibold">{showInUSD ? "USD" : NATIVE_TOKEN}</span>
+                    </div>
                     <input
                       type="number"
                       name={`upchargeValue${index}`}
                       id={`upchargeValue${index}`}
-                      className="text-left border-b border-gray-900 dark:border-gray-200/20 w-full bg-gray-500/20 py-2 px-3 text-sm leading-6 text-gray-800 dark:text-gray-300 focus:bg-gray-700/20 focus:border-primary/40 hover:border-primary/60 focus:outline-none"
-                      placeholder="Value"
+                      className="text-left border-b border-gray-900 dark:border-gray-200/20 w-full bg-gray-500/20 py-2 pl-16 pr-3 text-sm leading-6 text-gray-800 dark:text-gray-300 focus:bg-gray-700/20 focus:border-primary/40 hover:border-primary/60 focus:outline-none"
+                      placeholder={
+                        showInUSD
+                          ? "25" // Example USD price
+                          : `${(25 / (nativeCurrencyPrice || 1)).toFixed(4)}`
+                      }
                       value={item.value}
                       onChange={e => updateUpchargeValue(index, e.target.value, "value")}
                     />
+                    <div className="absolute inset-y-0 right-0 flex items-center pointer-events-none">
+                      <span className="text-gray-600 mr-2">
+                        {showInUSD
+                          ? `${(parseFloat(item.value) / (nativeCurrencyPrice || 1)).toFixed(4)} ${NATIVE_TOKEN}`
+                          : `$${formatPrice(parseFloat(item.value) * (nativeCurrencyPrice || 1), 2)}`}
+                      </span>
+                    </div>
                   </div>
                   <div className="col-span-1">
                     <button

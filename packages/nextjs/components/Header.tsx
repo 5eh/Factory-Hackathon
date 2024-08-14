@@ -89,7 +89,7 @@ export const Header = () => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setLogoSrc(resolvedTheme === "dark" ? "/logo-white.svg" : "/logo-black.svg");
+      setLogoSrc(resolvedTheme === "dark" ? "/logo-white.png" : "/logo-black.png");
     }, 10);
 
     return () => clearTimeout(timer);
