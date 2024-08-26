@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useGlobalState } from "~~/services/store/store";
 import { NATIVE_TOKEN } from "../../../configuration/company";
-import { TOKEN_ID } from "../../../configuration/blockchain";
+import { DISPLAYED_CURRENCY_DECIMALS, TOKEN_ID } from "../../../configuration/blockchain";
 
 export const StickyPriceConversion = () => {
   const [nativeCurrencyPrice, setNativeCurrencyPrice] = useState(null);
@@ -28,7 +27,9 @@ export const StickyPriceConversion = () => {
     setShowInUSD(!showInUSD);
   };
 
-  const equivalentEthForOneUSD = nativeCurrencyPrice ? (1 / nativeCurrencyPrice).toFixed(6) : null;
+  const equivalentEthForOneUSD = nativeCurrencyPrice
+    ? (1 / nativeCurrencyPrice).toFixed(DISPLAYED_CURRENCY_DECIMALS)
+    : null;
 
   return (
     <div className="min-h-0 py-5 px-1 mb-10 lg:mb-0 hover:cursor-crosshair">

@@ -1,45 +1,39 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
+import { createAccount } from "~~/mongodb/_actions/createAccountAction";
+import { findAccountAction } from "~~/mongodb/_actions/findAccountAction";
 
-const UpdateForm = () => {
-  const connectedAddress = "0x9d958fc91792293Fb0028CbaA27de58093aE0757";
-  const [field, setField] = useState("");
-  const [value, setValue] = useState("");
-  const [message, setMessage] = useState("");
+const UserProfilePage = () => {
+  const [wallet, setWallet] = useState("0x9d958fc91792293Fb0028CbaA27de58093aE0757"); // Replace with dynamic wallet fetching logic
+  const [isFirstTimeUser, setIsFirstTimeUser] = useState(null);
+
+  console.log("wallet on initial render:", wallet);
+
+  useEffect(() => {
+    console.log("wallet inside useEffect before async call:", wallet);
+
+    const checkFirstTimeUser = async () => {
+      const account = await findAccountAction(wallet);
+      if (!account) {
+        await createAccount(wallet);
+        setIsFirstTimeUser(true);
+      } else {
+        setIsFirstTimeUser(false);
+      }
+    };
+
+    checkFirstTimeUser().then(() => {
+      console.log("wallet inside useEffect after async call:", wallet);
+    });
+  }, [wallet]);
 
   return (
     <div>
-      <div>
-        <form>
-          <div>
-            <label htmlFor="field">Field:</label>
-            <input
-              type="text"
-              id="field"
-              name="field"
-              value={field}
-              onChange={e => setField(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="value">Value:</label>
-            <input
-              type="text"
-              id="value"
-              name="value"
-              value={value}
-              onChange={e => setValue(e.target.value)}
-              required
-            />
-          </div>
-          <button type="submit">Update</button>
-        </form>
-        {message && <p>{message}</p>}
-      </div>
+      <h2>User Profile Page</h2>
+      <p>{isFirstTimeUser !== null ? `First time user: ${isFirstTimeUser}` : "Checking..."}</p>
     </div>
   );
 };
 
-export default UpdateForm;
+export default UserProfilePage;

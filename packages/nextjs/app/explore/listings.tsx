@@ -1,16 +1,18 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Popup from "~~/components/Popup";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { COMPANY_DESCRIPTION, COMPANY_NAME, NATIVE_TOKEN } from "../../../../configuration/company";
-import { useGlobalState } from "~~/services/store/store";
+import { DISPLAYED_CURRENCY_DECIMALS, TOKEN_ID } from "../../../../configuration/blockchain";
+
 import Link from "next/link";
 import { CheckIcon } from "@heroicons/react/24/solid";
 
-export default function Listings({ showInUSD, searchInput, selectedCategory }) {
-  const nativeCurrencyPrice = useGlobalState(state => state.nativeCurrency.price);
+export default function Listings({ searchInput, selectedCategory }) {
+  const [nativeCurrencyPrice, setNativeCurrencyPrice] = useState(null);
+  const [showInUSD, setShowInUSD] = useState(true);
   const [openPopup, setOpenPopup] = useState({});
 
   const { data: allListings } = useScaffoldReadContract({
@@ -18,11 +20,25 @@ export default function Listings({ showInUSD, searchInput, selectedCategory }) {
     functionName: "getAllServiceData",
   });
 
+  useEffect(() => {
+    const fetchPrice = async () => {
+      try {
+        const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${TOKEN_ID}&vs_currencies=usd`);
+        const data = await response.json();
+        if (data[TOKEN_ID] && data[TOKEN_ID].usd) {
+          setNativeCurrencyPrice(data[TOKEN_ID].usd);
+        }
+      } catch (error) {
+        console.error("Error fetching the price from CoinGecko API:", error);
+      }
+    };
+
+    fetchPrice();
+  }, []);
+
   if (!allListings) {
     return <p>Loading listings...</p>;
   }
-
-  console.log("Full Contract Metadata:", allListings);
 
   const [listingIDs, productDataArray] = allListings;
 
@@ -44,7 +60,8 @@ export default function Listings({ showInUSD, searchInput, selectedCategory }) {
     <>
       {filteredListings.map((listingID, index) => {
         const product = productDataArray[index];
-        const priceInUSD = (Number(product.price) / 10 ** 18) * nativeCurrencyPrice;
+        const productPriceInETH = Number(product.price) / 10 ** 18;
+        const priceInUSD = nativeCurrencyPrice ? productPriceInETH * nativeCurrencyPrice : null;
 
         return (
           <div key={listingID} className="col-span-1">
@@ -74,13 +91,13 @@ export default function Listings({ showInUSD, searchInput, selectedCategory }) {
                 <div className="flex gap-3 items-center justify-between">
                   <span className="text-lg font-bold dark:text-gray-200">
                     {showInUSD
-                      ? `$${priceInUSD.toFixed(2)} USD`
-                      : `${(Number(product.price) / 10 ** 18).toFixed(8)} ${NATIVE_TOKEN}`}
+                      ? `$${priceInUSD ? priceInUSD.toFixed(2) : "Loading..."} USD`
+                      : `${productPriceInETH.toFixed(8)} ${NATIVE_TOKEN}`}
                   </span>
                   <span className="font-thin dark:text-gray-400">
                     {showInUSD
-                      ? `${(Number(product.price) / 10 ** 18).toFixed(8)} ${NATIVE_TOKEN}`
-                      : `$${priceInUSD.toFixed(2)} USD`}
+                      ? `${productPriceInETH.toFixed(3)} ${NATIVE_TOKEN}`
+                      : `$${priceInUSD ? priceInUSD.toFixed(2) : "Loading..."} USD`}
                   </span>
                 </div>
                 <div className="mt-0 mb-0">
@@ -186,11 +203,11 @@ export default function Listings({ showInUSD, searchInput, selectedCategory }) {
                     <span className="text-lg font-bold dark:text-gray-200">
                       {showInUSD
                         ? `$${priceInUSD.toFixed(2)} USD`
-                        : `${(Number(product.price) / 10 ** 18).toFixed(8)} ${NATIVE_TOKEN}`}
+                        : `${(Number(product.price) / 10 ** 18).toFixed(DISPLAYED_CURRENCY_DECIMALS)} ${NATIVE_TOKEN}`}
                     </span>
                     <span className="font-thin dark:text-gray-400">
                       {showInUSD
-                        ? `${(Number(product.price) / 10 ** 18).toFixed(4)} ${NATIVE_TOKEN}`
+                        ? `${(Number(product.price) / 10 ** 18).toFixed(DISPLAYED_CURRENCY_DECIMALS)} ${NATIVE_TOKEN}`
                         : `$${priceInUSD.toFixed(2)} USD`}
                     </span>
                   </div>

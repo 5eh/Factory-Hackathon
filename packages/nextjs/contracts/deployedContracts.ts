@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   5611: {
     ServiceContract: {
-      address: "0xb7C37fa046F290B9b191F38d0FE4BF25E23f109d",
+      address: "0xFC4122139b792390D8430E060EDde41140c04cBc",
       abi: [
         {
           inputs: [],
@@ -117,11 +117,6 @@ const deployedContracts = {
                   internalType: "bool",
                   name: "isCompleted",
                   type: "bool",
-                },
-                {
-                  internalType: "string",
-                  name: "listingID",
-                  type: "string",
                 },
               ],
               indexed: false,
@@ -363,11 +358,6 @@ const deployedContracts = {
                   name: "isCompleted",
                   type: "bool",
                 },
-                {
-                  internalType: "string",
-                  name: "listingID",
-                  type: "string",
-                },
               ],
               internalType: "struct ServiceContract.ServiceData[]",
               name: "",
@@ -462,11 +452,6 @@ const deployedContracts = {
                   internalType: "bool",
                   name: "isCompleted",
                   type: "bool",
-                },
-                {
-                  internalType: "string",
-                  name: "listingID",
-                  type: "string",
                 },
               ],
               internalType: "struct ServiceContract.ServiceData",
@@ -597,11 +582,6 @@ const deployedContracts = {
               internalType: "bool",
               name: "isCompleted",
               type: "bool",
-            },
-            {
-              internalType: "string",
-              name: "listingID",
-              type: "string",
             },
           ],
           stateMutability: "view",

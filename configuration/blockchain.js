@@ -7,7 +7,7 @@
 // Refer to the TOKEN_ID from this doc: https://docs.google.com/spreadsheets/d/1wTTuxXt8n9q7C4NDXqQpI3wpKu1_5bGVmP9Xz0XGSyU/edit?gid=0#gid=0
 // -------------------------------------------------------------------------------------
 
-const BLOCKCHAIN_NETWORK = "opBNBTestnet";
+const BLOCKCHAIN_NETWORK = "hardhat";
 const TOKEN_ID = "binancecoin"; // Read header
 
 const NATIVE_CURRENCY_DECIMALS = 18; // Found in docs, typically 18

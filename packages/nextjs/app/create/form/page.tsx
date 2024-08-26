@@ -4,10 +4,10 @@ import { useSearchParams } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { COMPANY_DESCRIPTION, COMPANY_NAME, NATIVE_TOKEN } from "../../../../../configuration/company";
-import { useGlobalState } from "~~/services/store/store";
 import Image from "next/image";
 import { CheckIcon } from "@heroicons/react/24/solid";
 import Popup from "~~/components/Popup";
+import { DISPLAYED_CURRENCY_DECIMALS, TOKEN_ID } from "../../../../../configuration/blockchain";
 
 interface FormData {
   title: string;
@@ -17,6 +17,9 @@ interface FormData {
   location: string;
   quantityOfService: number;
   category: string;
+  completionRequirements: string;
+  termsOfService: string;
+  timeValidity: number;
   features: string[];
   upcharges: { upcharge: string; value: string }[];
   shippingMethod: string;
@@ -27,8 +30,8 @@ const Form: React.FC = () => {
   const category = searchParams.get("id") || "";
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
-  const { writeContractAsync: writeYourContractAsync } = useScaffoldWriteContract("CommerceContract");
-  const nativeCurrencyPrice = useGlobalState(state => state.nativeCurrency.price);
+  const { writeContractAsync: writeYourContractAsync } = useScaffoldWriteContract("ServiceContract");
+  const [nativeCurrencyPrice, setNativeCurrencyPrice] = useState(null);
   const [showInUSD, setShowInUSD] = useState(true);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [openPopup, setOpenPopup] = useState(false);
@@ -41,6 +44,9 @@ const Form: React.FC = () => {
     location: "",
     quantityOfService: 1,
     category: category,
+    completionRequirements: "",
+    termsOfService: "",
+    timeValidity: 0,
     features: [""],
     upcharges: [{ upcharge: "", value: "" }],
     shippingMethod: "",
@@ -109,6 +115,22 @@ const Form: React.FC = () => {
     setFormData({ ...formData, upcharges: updatedUpcharges });
   };
 
+  useEffect(() => {
+    const fetchPrice = async () => {
+      try {
+        const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${TOKEN_ID}&vs_currencies=usd`);
+        const data = await response.json();
+        if (data[TOKEN_ID] && data[TOKEN_ID].usd) {
+          setNativeCurrencyPrice(data[TOKEN_ID].usd);
+        }
+      } catch (error) {
+        console.error("Error fetching the price from CoinGecko API:", error);
+      }
+    };
+
+    fetchPrice();
+  }, []);
+
   const toggleCurrency = () => {
     setShowInUSD(!showInUSD);
   };
@@ -148,44 +170,39 @@ const Form: React.FC = () => {
       const uniqueComponent = Math.floor(Math.random() * 1000000);
       const listingID = `listing-${timestamp}-${uniqueComponent}`;
 
-      console.log(listingID);
-
       const price = showInUSD
-        ? BigInt(((formData.price / nativeCurrencyPrice) * 10 ** 18).toFixed(0)) // Convert to wei if in USD
+        ? BigInt(((formData.price / nativeCurrencyPrice) * 10 ** 18).toFixed(0))
         : BigInt(formData.price * 10 ** 18); // Keep as is if in native currency
 
       const args = [
         formData.title,
         formData.description,
-        formData.photo || "", // photo is optional
         formData.location,
-        formData.shippingMethod,
-        formData.upcharges.map(upcharge => upcharge.upcharge).join(", "),
-        formData.category,
+        formData.completionRequirements,
+        formData.termsOfService,
+        formData.photo || "", // photo is optional
         price,
+        formData.timeValidity,
         formData.quantityOfService,
-        500000,
         listingID,
       ];
 
       await writeYourContractAsync({
-        functionName: "createProduct",
+        functionName: "createService",
         args: args,
         overrides: {
           gasLimit: 300000, // Adjust gas limit as needed
         },
       });
     } catch (error) {
-      console.error("Error creating product:", error);
+      console.error("Error creating service:", error);
     }
   };
-
-  const priceInUSD = (Number(formData.price) / 10 ** 18) * nativeCurrencyPrice;
 
   return (
     <div className="x-6 lg:px-8">
       <div className="mt-12">
-        <h1 className="text-4xl font-semibold code"> CREATE YOUR LISTING </h1>
+        <h1 className="text-4xl font-semibold code"> CREATE YOUR SERVICE LISTING </h1>
       </div>
       <form className="">
         <div className="space-y-12 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-12">
@@ -202,7 +219,7 @@ const Form: React.FC = () => {
                     id="title"
                     autoComplete="title"
                     className="text-left border-b border-gray-900 dark:border-gray-200/20 w-full bg-gray-500/20 py-2 px-3 text-sm leading-6 text-gray-800 dark:text-gray-300 focus:bg-gray-700/20 focus:border-primary/40 hover:border-primary/60 focus:outline-none"
-                    placeholder="Monstera Deliciosa"
+                    placeholder="Service Title"
                     value={formData.title}
                     onChange={handleInputChange}
                   />
@@ -220,14 +237,49 @@ const Form: React.FC = () => {
                   name="description"
                   rows={3}
                   className="text-left border border-gray-200/20 w-full bg-gray-500/20 py-2 px-3 text-sm leading-6 text-gray-800 dark:text-gray-300 focus:bg-gray-700/20 focus:border-primary/40 hover:border-primary/60 focus:outline-none"
-                  placeholder="This tropical plant is known for its unique, hole-punched leaves and low maintenance requirements. Ideal for indoor spaces as it thrives in indirect light and requires watering only once a week."
+                  placeholder="Service Description"
                   value={formData.description}
                   onChange={handleInputChange}
                 />
               </div>
-              {/* <div className="col-span-full flex justify-center">
-                <input type="file" className="file-input file-input-bordered w-full max-w-xs mt-4 mb-4" />
-              </div> */}
+              <div className="sm:col-span-4 mt-12">
+                <label
+                  htmlFor="completionRequirements"
+                  className="block text-sm font-medium leading-6 text-gray-900 dark:text-white"
+                >
+                  COMPLETION REQUIREMENTS
+                </label>
+                <div className="mt-2">
+                  <textarea
+                    id="completionRequirements"
+                    name="completionRequirements"
+                    rows={2}
+                    className="text-left border border-gray-200/20 w-full bg-gray-500/20 py-2 px-3 text-sm leading-6 text-gray-800 dark:text-gray-300 focus:bg-gray-700/20 focus:border-primary/40 hover:border-primary/60 focus:outline-none"
+                    placeholder="Describe the requirements for completing the service"
+                    value={formData.completionRequirements}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+              <div className="sm:col-span-4 mt-12">
+                <label
+                  htmlFor="termsOfService"
+                  className="block text-sm font-medium leading-6 text-gray-900 dark:text-white"
+                >
+                  TERMS OF SERVICE
+                </label>
+                <div className="mt-2">
+                  <textarea
+                    id="termsOfService"
+                    name="termsOfService"
+                    rows={2}
+                    className="text-left border border-gray-200/20 w-full bg-gray-500/20 py-2 px-3 text-sm leading-6 text-gray-800 dark:text-gray-300 focus:bg-gray-700/20 focus:border-primary/40 hover:border-primary/60 focus:outline-none"
+                    placeholder="Terms of service for this listing"
+                    value={formData.termsOfService}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
               <label
                 htmlFor="photo"
                 className="block text-sm font-medium leading-6 mt-12 text-gray-900 dark:text-white"
@@ -244,8 +296,6 @@ const Form: React.FC = () => {
                 />
                 <div className="w-full border border-transparent border-t-black dark:border-t-white pt-1" />
               </div>
-
-              {/* PREVIEW */}
 
               <div className="sm:col-span-3">
                 <label
@@ -271,7 +321,7 @@ const Form: React.FC = () => {
                         name="price"
                         id="price"
                         className="text-left border-b border-gray-900 dark:border-gray-200/20 w-full bg-gray-500/20 py-2 pl-12 pr-12 text-md leading-6 text-gray-800 dark:text-gray-300 focus:bg-gray-700/20 focus:border-primary/40 hover:border-primary/60 focus:outline-none"
-                        placeholder={showInUSD ? "249" : `${(249 / nativeCurrencyPrice).toFixed(6)}`}
+                        placeholder={showInUSD ? "249" : `${(249 / nativeCurrencyPrice).toFixed(12)}`}
                         value={formData.price}
                         onChange={handleInputChange}
                       />
@@ -425,65 +475,7 @@ const Form: React.FC = () => {
           <h1 className="text-4xl font-semibold code"> PREVIEW </h1>
         </div>
 
-        <div className="space-y-12 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-12">
-          <div className="grid lg:grid-cols-8 lg:grid-rows-1 sm:col-span-3">
-            <div className="lg:col-span-2 lg:col-start-4 sm:col-span-3 sm:col-start-2">
-              <div
-                onClick={() => {
-                  togglePopup();
-                }}
-                className="hover:cursor-pointer"
-              >
-                <div className="relative  sm:h-[75px] md:h-[150px] lg:h-[275px] overflow-hidden border dark:border-gray-500 border-black dark:bg-gray-300/10">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    {!previewImage && <span> Not set </span>}
-                    {previewImage && (
-                      <Image
-                        src={formData.photo}
-                        alt={formData.photo}
-                        layout="fill"
-                        objectFit="cover"
-                        className="filter blur-xl"
-                        style={{ objectPosition: "center top" }}
-                      />
-                    )}
-                  </div>
-                  <div className="relative flex items-center justify-center w-full h-full">
-                    {previewImage && (
-                      <Image
-                        src={formData.photo}
-                        alt={formData.photo}
-                        width={600}
-                        height={400}
-                        className="w-full h-auto object-cover dark:border border-gray-800 border-b-transparent dark:border-b-transparent dark:border-gray-200/20"
-                      />
-                    )}
-                  </div>
-                </div>
-
-                <div className="p-3 dark:border-gray-200/20 border-gray-800 border dark:border h-24 dark:bg-gray-200/5 dark:border-t-transparent">
-                  <div className="flex gap-3 items-center justify-between">
-                    <span className="text-lg font-bold dark:text-gray-200">
-                      {showInUSD
-                        ? `$${priceInUSD.toFixed(2)} USD`
-                        : `${(Number(formData.price) / 10 ** 18).toFixed(4)} ${NATIVE_TOKEN}`}
-                    </span>
-                    <span className="font-thin dark:text-gray-400">
-                      {showInUSD
-                        ? `${(Number(formData.price) / 10 ** 18).toFixed(4)} ${NATIVE_TOKEN}`
-                        : `$${priceInUSD.toFixed(2)} USD`}
-                    </span>{" "}
-                  </div>
-                  <div className="mt-0 mb-0">
-                    <span className="block">{formData.title || "Not set"}</span>
-                    <span className="mt-2 text-gray-500">{formData.location || "Not set"}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
+        {/* Additional UI for preview and other components */}
         <Popup
           isOpen={openPopup}
           onClose={togglePopup}
@@ -491,8 +483,10 @@ const Form: React.FC = () => {
           title={
             <Popup.Title className="pl-3 pr-3 uppercase">
               <div className="flex w-full justify-between">
-                <span className="text-left code">{formData.title}</span>
-                <span className="text-right dark:text-gray-100/50 font-thin lowercase">{formData.category}</span>
+                <span className="text-left code">{formData.title || "Title not set"}</span>
+                <span className="text-right dark:text-gray-100/50 font-thin lowercase">
+                  {formData.category || "Category not set"}
+                </span>
               </div>
             </Popup.Title>
           }
@@ -500,92 +494,105 @@ const Form: React.FC = () => {
           <div className="grid grid-cols-auto grid-rows-auto gap-2 m-4">
             <div className="col-span-2 row-span-2 border border-gray-800 h-fit">
               <div className="p-4">
-                <span>{formData.description}</span>
+                <span>{formData.description || "Description not set"}</span>
               </div>
             </div>
 
             <div className="col-span-2 row-span-6 border border-gray-400 overflow-hidden">
               <div className="relative w-full h-full">
                 <div className="absolute inset-0 flex items-center justify-center filter blur-xl">
-                  <Image
-                    src={formData.photo}
-                    alt={formData.title}
-                    layout="fill"
-                    objectFit="cover"
-                    className="object-center"
-                  />
+                  {formData.photo ? (
+                    <Image
+                      src={formData.photo}
+                      alt={formData.title}
+                      layout="fill"
+                      objectFit="cover"
+                      className="object-center"
+                    />
+                  ) : (
+                    <span>No image set</span>
+                  )}
                 </div>
-                <div className="relative flex items-center justify-center w-full h-full">
-                  <Image
-                    src={formData.photo}
-                    alt={formData.title}
-                    layout="fill"
-                    objectFit="contain"
-                    className="w-full h-auto"
-                  />
-                </div>
+                {formData.photo && (
+                  <div className="relative flex items-center justify-center w-full h-full">
+                    <Image
+                      src={formData.photo}
+                      alt={formData.title}
+                      layout="fill"
+                      objectFit="contain"
+                      className="w-full h-auto"
+                    />
+                  </div>
+                )}
               </div>
             </div>
 
             <div className="col-span-2 flex gap-2">
               <div className="grid grid-cols-2 gap-3 w-full">
-                <div className="border border-gray-700 w-full flex items-center gap-3 pl-4 pr-4">
-                  <div className="relative w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center border border-green-500">
-                    <CheckIcon className="w-4 h-6 text-white" />
+                {formData.features.map((feature, index) => (
+                  <div key={index} className="border border-gray-700 w-full flex items-center gap-3 pl-4 pr-4">
+                    <div className="relative w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center border border-green-500">
+                      <CheckIcon className="w-4 h-6 text-white" />
+                    </div>
+                    <p>{feature || "Feature not set"}</p>
                   </div>
-                  <p>Feature 1</p>
-                </div>
-                <div className="border border-gray-700 w-full flex items-center gap-3 pl-4 pr-4">
-                  <div className="relative w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center border border-green-500">
-                    <CheckIcon className="w-4 h-6 text-white" />
-                  </div>
-                  <p>Feature 2</p>
-                </div>
+                ))}
               </div>
             </div>
 
             <div className="col-span-2 row-span-2 border border-gray-600 border-dotted h-64">
               <div className="relative w-full h-full">
                 <div className="absolute inset-0 flex items-center justify-center filter blur-xl">
-                  <Image
-                    src="https://plus.unsplash.com/premium_photo-1673137021181-ac1b77dda93a?q=80&w=2000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                    alt={formData.title}
-                    layout="fill"
-                    objectFit="cover"
-                    className="object-center"
-                  />
+                  {formData.photo ? (
+                    <Image
+                      src={formData.photo}
+                      alt={formData.title}
+                      layout="fill"
+                      objectFit="cover"
+                      className="object-center"
+                    />
+                  ) : (
+                    <span>No image set</span>
+                  )}
                 </div>
-                <div className="relative flex items-center justify-center w-full h-full">
-                  <Image
-                    src="https://plus.unsplash.com/premium_photo-1673137021181-ac1b77dda93a?q=80&w=2000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                    alt={formData.title}
-                    layout="fill"
-                    objectFit="cover"
-                    className="w-full h-auto"
-                  />
-                </div>
+                {formData.photo && (
+                  <div className="relative flex items-center justify-center w-full h-full">
+                    <Image
+                      src={formData.photo}
+                      alt={formData.title}
+                      layout="fill"
+                      objectFit="cover"
+                      className="w-full h-auto"
+                    />
+                  </div>
+                )}
               </div>
             </div>
 
             <div className="col-span-2 border border-gray-400 h-fit pl-4 pr-4">
               <p>Upcharge list</p>
+              {formData.upcharges.map((upcharge, index) => (
+                <p key={index}>
+                  {upcharge.upcharge || "No upcharge"}: {upcharge.value || "0"}
+                </p>
+              ))}
             </div>
 
             <div className="col-span-2 border border-gray-400 h-fit pl-4 pr-4">
-              <p>Shipping Method List (dropdown)</p>
+              <p>Shipping Method: {formData.shippingMethod || "Not set"}</p>
             </div>
 
             <div className="col-span-2 col-start-3 border border-primary/80 bg-primary/20 p-4">
               <div className="flex gap-3 items-center justify-between">
                 <span className="text-lg font-bold dark:text-gray-200">
                   {showInUSD
-                    ? `$${priceInUSD.toFixed(2)} USD`
-                    : `${(Number(formData.price) / 10 ** 18).toFixed(8)} ${NATIVE_TOKEN}`}
+                    ? `$${((formData.price * nativeCurrencyPrice) / 10 ** 18).toFixed(2)} USD`
+                    : `${(formData.price / 10 ** 18).toFixed(8)} ${NATIVE_TOKEN}`}
                 </span>
                 <span className="font-thin dark:text-gray-400">
                   {showInUSD
-                    ? `${(Number(formData.price) / 10 ** 18).toFixed(4)} ${NATIVE_TOKEN}`
-                    : `$${priceInUSD.toFixed(2)} USD`}
+                    ? `${(formData.price / 10 ** 18).toFixed(4)} ${NATIVE_TOKEN}`
+                    : `$${((formData.price * nativeCurrencyPrice) / 10 ** 18).toFixed(2)} USD`}
                 </span>
               </div>
             </div>
@@ -653,7 +660,7 @@ const Form: React.FC = () => {
 
           <div className="flex justify-center items-center w-full mt-2 relative pl-4 pr-4 gap-4">
             <div className="text-center w-1/2 bg-gray-600/20 border border-gray-600 hover:cursor-pointer">
-              <p>MESSAGE {formData.title.toUpperCase()}</p>
+              <p>MESSAGE {formData.title?.toUpperCase() || "SERVICE"}</p>
             </div>
             <div className="text-center w-1/2 bg-green-400/20 border border-green-600">
               <p>CONTINUE TO CHECKOUT</p>
@@ -667,7 +674,7 @@ const Form: React.FC = () => {
             className="border border-gray-200/20 bg-gray-500/20 hover:border-primary/60 text-right py-2 px-3 text-sm font-semibold text-gray-800 dark:text-gray-300 focus:bg-gray-700/20 focus:border-primary/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary/60"
             onClick={handleSubmit}
           >
-            CREATE LISTING
+            CREATE SERVICE
           </button>
         </div>
       </form>
