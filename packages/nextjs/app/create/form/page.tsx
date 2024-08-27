@@ -7,7 +7,7 @@ import { COMPANY_DESCRIPTION, COMPANY_NAME, NATIVE_TOKEN } from "../../../../../
 import Image from "next/image";
 import { CheckIcon } from "@heroicons/react/24/solid";
 import Popup from "~~/components/Popup";
-import { DISPLAYED_CURRENCY_DECIMALS, TOKEN_ID } from "../../../../../configuration/blockchain";
+import { TOKEN_ID } from "../../../../../configuration/blockchain";
 
 interface FormData {
   title: string;
@@ -31,7 +31,7 @@ const Form: React.FC = () => {
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
   const { writeContractAsync: writeYourContractAsync } = useScaffoldWriteContract("ServiceContract");
-  const [nativeCurrencyPrice, setNativeCurrencyPrice] = useState(null);
+  const [nativeCurrencyPrice, setNativeCurrencyPrice] = useState<number | null>(null);
   const [showInUSD, setShowInUSD] = useState(true);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [openPopup, setOpenPopup] = useState(false);
@@ -108,10 +108,7 @@ const Form: React.FC = () => {
   };
 
   const updateUpchargeValue = (index: number, value: string, field: "upcharge" | "value") => {
-    const updatedValue = field === "value" ? value : value;
-    const updatedUpcharges = formData.upcharges.map((item, i) =>
-      i === index ? { ...item, [field]: updatedValue } : item,
-    );
+    const updatedUpcharges = formData.upcharges.map((item, i) => (i === index ? { ...item, [field]: value } : item));
     setFormData({ ...formData, upcharges: updatedUpcharges });
   };
 
@@ -149,7 +146,7 @@ const Form: React.FC = () => {
       });
       const data = await response.json();
       setFormData({ ...formData, photo: data.data.url });
-      setPreviewImage(data.data.url); // Set preview image
+      setPreviewImage(data.data.url);
     } catch (error) {
       console.error("Error uploading image:", error);
     }
@@ -170,9 +167,10 @@ const Form: React.FC = () => {
       const uniqueComponent = Math.floor(Math.random() * 1000000);
       const listingID = `listing-${timestamp}-${uniqueComponent}`;
 
-      const price = showInUSD
-        ? BigInt(((formData.price / nativeCurrencyPrice) * 10 ** 18).toFixed(0))
-        : BigInt(formData.price * 10 ** 18); // Keep as is if in native currency
+      const price =
+        showInUSD && nativeCurrencyPrice
+          ? BigInt(((formData.price / nativeCurrencyPrice) * 10 ** 18).toFixed(0))
+          : BigInt(formData.price * 10 ** 18); // Keep as is if in native currency
 
       const args = [
         formData.title,
@@ -321,16 +319,18 @@ const Form: React.FC = () => {
                         name="price"
                         id="price"
                         className="text-left border-b border-gray-900 dark:border-gray-200/20 w-full bg-gray-500/20 py-2 pl-12 pr-12 text-md leading-6 text-gray-800 dark:text-gray-300 focus:bg-gray-700/20 focus:border-primary/40 hover:border-primary/60 focus:outline-none"
-                        placeholder={showInUSD ? "249" : `${(249 / nativeCurrencyPrice).toFixed(12)}`}
+                        placeholder={
+                          showInUSD && nativeCurrencyPrice ? "249" : `${(249 / nativeCurrencyPrice!).toFixed(12)}`
+                        }
                         value={formData.price}
                         onChange={handleInputChange}
                       />
                     </div>
                     <div className="absolute inset-y-0 right-0  flex items-center pointer-events-none">
                       <span className="text-gray-600 mr-2">
-                        {showInUSD
+                        {showInUSD && nativeCurrencyPrice
                           ? `${(formData.price / nativeCurrencyPrice).toFixed(6)} ${NATIVE_TOKEN}`
-                          : `$${(formData.price * nativeCurrencyPrice).toFixed(2)}`}
+                          : `$${(formData.price * nativeCurrencyPrice!).toFixed(2)}`}
                       </span>
                     </div>
                   </div>
@@ -585,14 +585,14 @@ const Form: React.FC = () => {
             <div className="col-span-2 col-start-3 border border-primary/80 bg-primary/20 p-4">
               <div className="flex gap-3 items-center justify-between">
                 <span className="text-lg font-bold dark:text-gray-200">
-                  {showInUSD
+                  {showInUSD && nativeCurrencyPrice
                     ? `$${((formData.price * nativeCurrencyPrice) / 10 ** 18).toFixed(2)} USD`
                     : `${(formData.price / 10 ** 18).toFixed(8)} ${NATIVE_TOKEN}`}
                 </span>
                 <span className="font-thin dark:text-gray-400">
-                  {showInUSD
+                  {showInUSD && nativeCurrencyPrice
                     ? `${(formData.price / 10 ** 18).toFixed(4)} ${NATIVE_TOKEN}`
-                    : `$${((formData.price * nativeCurrencyPrice) / 10 ** 18).toFixed(2)} USD`}
+                    : `$${((formData.price * nativeCurrencyPrice!) / 10 ** 18).toFixed(2)} USD`}
                 </span>
               </div>
             </div>

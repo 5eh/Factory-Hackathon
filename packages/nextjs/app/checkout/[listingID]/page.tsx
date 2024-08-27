@@ -2,12 +2,11 @@
 
 import { useParams } from "next/navigation";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
-import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
 import { useEffect, useState } from "react";
 
 import { COMPANY_DESCRIPTION, COMPANY_NAME, NATIVE_TOKEN } from "../../../../../configuration/company";
-import { TITLE_BREAKER } from "../../../../../configuration/seo";
+
 import Popup from "~~/components/Popup";
 import { CheckIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
@@ -29,18 +28,23 @@ interface FormData {
 
 export default function Checkout() {
   const { listingID } = useParams();
-  const [product, setProduct] = useState(null);
+  const [product, setProduct] = useState<any>(null);
   const [openPopup, setOpenPopup] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const { data: allListings } = useScaffoldReadContract({
-    contractName: "CommerceContract",
-    functionName: "getAllProductData",
+  const { data: getListing } = useScaffoldReadContract({
+    contractName: "ServiceContract",
+    functionName: "getServiceData",
+    args: listingID, // Ensure that any necessary arguments are passed
   });
 
-  // 1. Retrieve contract
-  // 2. Call contract
-  // 3. Set contract information and redirect on handleSubmit
-  // 4. Set custom instructions
+  useEffect(() => {
+    if (getListing) {
+      const listingData = getListing[0];
+      setProduct(listingData);
+      setLoading(false);
+    }
+  }, [getListing]);
 
   const [formData, setFormData] = useState<FormData>({
     name: "",
@@ -56,19 +60,6 @@ export default function Checkout() {
     shippingMethod: "",
   });
 
-  useEffect(() => {
-    if (listingID && allListings) {
-      const [listingIDs, productDataArray] = allListings;
-      const listingIndex = listingIDs.indexOf(listingID);
-      if (listingIndex !== -1) {
-        setProduct(productDataArray[listingIndex]);
-        console.log("Listing Data:", productDataArray[listingIndex]);
-      } else {
-        console.log("Listing not found.");
-      }
-    }
-  }, [listingID, allListings]);
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prevFormData => ({
@@ -82,12 +73,8 @@ export default function Checkout() {
     console.log("Form Data:", formData);
   };
 
-  if (!listingID) {
+  if (loading) {
     return <p>Loading...</p>;
-  }
-
-  if (!allListings) {
-    return <p>Loading listing data...</p>;
   }
 
   if (!product) {
@@ -97,14 +84,6 @@ export default function Checkout() {
   const togglePopup = () => {
     setOpenPopup(!openPopup);
   };
-
-  // await writeYourContractAsync({
-  //   functionName: "createProduct",
-  //   args: args,
-  //   overrides: {
-  //     gasLimit: 300000, // Adjust gas limit as needed
-  //   },
-  // });
 
   return (
     <div className="px-6 lg:px-8">
