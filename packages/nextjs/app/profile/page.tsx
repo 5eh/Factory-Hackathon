@@ -13,7 +13,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
 import Popup from "~~/components/Popup";
-import { findAccountInformation } from "~~/mongodb/_actions/findAccountAction"; // Adjust the import path according to your project structure
+import { findAccountAction } from "~~/mongodb/_actions/findAccountAction"; // Adjust the import path according to your project structure
 import { NATIVE_TOKEN } from "../../../../configuration/company";
 import EditAboutSection from "~~/components/EditAboutSection";
 import ViewBadgeChallenges from "~~/components/viewBadgeChallenges";
@@ -45,7 +45,7 @@ export default function Page() {
     const wallet = address;
 
     setIsLoading(false);
-    const result = await findAccountInformation(wallet);
+    const result = await findAccountAction(wallet);
 
     if (result.success) {
       setAccountInfo(result.data);
@@ -88,6 +88,7 @@ export default function Page() {
       });
       const data = await response.json();
       setReceiptImage(data.data.url);
+      console.log(receiptImage);
       console.log(data.data.url);
       setUploadSuccess(true);
       setButtonText("Receive vara!");

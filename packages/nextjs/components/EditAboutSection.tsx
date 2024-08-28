@@ -1,6 +1,5 @@
 import {
   AcademicCapIcon,
-  BoltIcon,
   ComputerDesktopIcon,
   FaceSmileIcon,
   GlobeAsiaAustraliaIcon,

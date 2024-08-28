@@ -11,6 +11,20 @@ import Popup from "~~/components/Popup";
 import { CheckIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import Link from "next/link";
+import { CheckmarkIcon } from "react-hot-toast";
+
+interface ListingData {
+  title: string;
+  description: string;
+  location: string;
+  completionRequirements: string;
+  termsOfService: string;
+  image: string;
+  price: number;
+  timeValidity: string;
+  quantity: number;
+  creatorWallet: string;
+}
 
 interface FormData {
   name: string;
@@ -28,14 +42,32 @@ interface FormData {
 
 export default function Checkout() {
   const { listingID } = useParams();
-  const [product, setProduct] = useState<any>(null);
+  // const [product, setProduct] = useState<any>(null);
+
+  const [product, setProduct] = useState<ListingData>({
+    title: "Title of Product",
+    description: "Amazing description of product",
+    location: "Austin Texas",
+    completionRequirements: "I promise to complete X Y and Z to ensure I receive X in payment.",
+    termsOfService: "You agree to the following terms in order for my to complete my service",
+    image: "https://images.unsplash.com/link",
+    price: 5500000,
+    timeValidity: "33/33333/33",
+    quantity: 55,
+    creatorWallet: "",
+  });
   const [openPopup, setOpenPopup] = useState(false);
+  const [openConfirmationPopup, setOpenConfirmationPopup] = useState(false);
+  const [openMarketplaceTACPopup, setOpenMarketplaceTACPopup] = useState(false);
+  const [openProviderssPromiseAgreement, setOpenProvidersPromiseAgreementPopup] = useState(false);
+  const [openProvidersTACgreementPopup, setOpenProvidersTACgreementPopup] = useState(false);
+
   const [loading, setLoading] = useState(true);
 
   const { data: getListing } = useScaffoldReadContract({
     contractName: "ServiceContract",
     functionName: "getServiceData",
-    args: listingID, // Ensure that any necessary arguments are passed
+    args: listingID,
   });
 
   useEffect(() => {
@@ -73,17 +105,33 @@ export default function Checkout() {
     console.log("Form Data:", formData);
   };
 
-  if (loading) {
-    return <p>Loading...</p>;
-  }
-
-  if (!product) {
-    return <p>Listing not found.</p>;
-  }
-
   const togglePopup = () => {
     setOpenPopup(!openPopup);
   };
+
+  const toggleConfirmationPopup = () => {
+    setOpenConfirmationPopup(!openConfirmationPopup);
+  };
+
+  const toggleMarketplaceTACPopup = () => {
+    setOpenMarketplaceTACPopup(!openMarketplaceTACPopup);
+  };
+
+  const toggleProviderPromiseAgreementPopup = () => {
+    setOpenProvidersPromiseAgreementPopup(!openProviderssPromiseAgreement);
+  };
+
+  const toggleProvidersServiceTACPopup = () => {
+    setOpenProvidersTACgreementPopup(!openProvidersTACgreementPopup);
+  };
+
+  // if (loading) {
+  //   return <p>Loading...</p>;
+  // }
+
+  // if (!product) {
+  //   return <p>Listing not found.</p>;
+  // }
 
   return (
     <div className="px-6 lg:px-8">
@@ -102,7 +150,7 @@ export default function Checkout() {
           <Popup.Title className="pl-3 pr-3 uppercase">
             <div className="flex w-full justify-between">
               <span className="text-left code">{product.title}</span>
-              <span className="text-right dark:text-gray-100/50 font-thin lowercase">{product.category}</span>
+              <span className="text-right dark:text-gray-100/50 font-thin lowercase">{product.location}</span>
             </div>
           </Popup.Title>
         }
@@ -118,7 +166,7 @@ export default function Checkout() {
             <div className="relative w-full h-full">
               <div className="absolute inset-0 flex items-center justify-center filter blur-xl">
                 <Image
-                  src={product.photo}
+                  src={product.image}
                   alt={product.title}
                   layout="fill"
                   objectFit="cover"
@@ -127,7 +175,7 @@ export default function Checkout() {
               </div>
               <div className="relative flex items-center justify-center w-full h-full">
                 <Image
-                  src={product.photo}
+                  src={product.image}
                   alt={product.title}
                   layout="fill"
                   objectFit="contain"
@@ -267,13 +315,10 @@ export default function Checkout() {
         </div>
       </Popup>
 
-      <div className="relative mx-auto grid max-w-7xl grid-cols-1 gap-x-16 lg:grid-cols-2 lg:px-8 xl:gap-x-48">
+      <div className="relative mx-auto grid max-w-7xl grid-cols-1 gap-x-4 lg:grid-cols-2 lg:px-8 xl:gap-x-12">
         <h1 className="sr-only">Order information</h1>
 
-        <section
-          aria-labelledby="summary-heading"
-          className="px-4 pb-10 pt-16 sm:px-6 lg:col-start-2 lg:row-start-1 lg:px-0 lg:pb-16"
-        >
+        <div className="px-4 pb-10 pt-16 sm:px-6 lg:col-start-2 lg:row-start-1 lg:px-0 lg:pb-16">
           <div className="mx-auto max-w-lg lg:max-w-none">
             <h2 id="summary-heading" className="text-lg font-medium text-gray-300">
               Order summary
@@ -339,12 +384,9 @@ export default function Checkout() {
               </div>
             </dl>
           </div>
-        </section>
+        </div>
 
-        <form
-          className="px-4 pb-36 pt-16 sm:px-6 lg:col-start-1 lg:row-start-1 lg:px-0 lg:pb-16"
-          onSubmit={handleSubmit}
-        >
+        <form className="px-4 pb-36 pt-16 sm:px-6 lg:col-start-1 lg:px-0 lg:pb-16" onSubmit={handleSubmit}>
           <div className="mx-auto max-w-lg lg:max-w-none">
             <section aria-labelledby="shipping-heading" className="mt-10">
               <h2 id="shipping-heading" className="text-lg font-medium text-gray-300">
@@ -492,13 +534,145 @@ export default function Checkout() {
               </div>
             </section>
 
-            <div className="mt-10 border-t border-gray-200 pt-6 sm:flex sm:items-center sm:justify-between w-full">
+            <div className="mt-10 border-t border-gray-200 pt-6 sm:items-center sm:justify-between w-full">
+              <div className="flex gap-4" onClick={toggleMarketplaceTACPopup}>
+                <div>
+                  <button
+                    type="submit"
+                    className="my-2 border border-primary/80 bg-primary/10 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary/30 focus:outline-none focus:ring-1 focus:ring-primary/80"
+                  >
+                    <CheckmarkIcon />
+                  </button>
+                </div>
+
+                <p>
+                  {" "}
+                  I agree to the <span className="text-primary italic">marketplaces terms and conditions</span>{" "}
+                </p>
+              </div>
+
+              <Popup
+                isOpen={openMarketplaceTACPopup}
+                onClose={toggleMarketplaceTACPopup}
+                className="xl:w-3/5 min-h-64 max-w-full max-h-[80vh] overflow-y-auto relative"
+                title={
+                  <Popup.Title className="pl-3 pr-3">
+                    <div className="flex w-full justify-between">
+                      <span className="text-right dark:text-gray-100/50 font-thin ">
+                        Marketplace Terms and Conditions
+                      </span>
+                    </div>
+                  </Popup.Title>
+                }
+              >
+                <div className="flex justify-center items-center w-full mt-2 relative pl-4 pr-4 gap-4">
+                  <p>MARKETPLACE CONDITIONS </p>
+                </div>
+              </Popup>
+
+              <div className="flex gap-4" onClick={toggleProviderPromiseAgreementPopup}>
+                <div>
+                  <button
+                    type="submit"
+                    className="my-2 border border-primary/80 bg-primary/10 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary/30 focus:outline-none focus:ring-1 focus:ring-primary/80 "
+                  >
+                    <CheckmarkIcon />
+                  </button>
+                </div>
+
+                <p>
+                  {" "}
+                  I agree to the <span className="text-primary italic">service providers promise agreement</span>{" "}
+                </p>
+              </div>
+
+              <Popup
+                isOpen={openProviderssPromiseAgreement}
+                onClose={toggleProviderPromiseAgreementPopup}
+                className="xl:w-3/5 min-h-64 max-w-full max-h-[80vh] overflow-y-auto relative"
+                title={
+                  <Popup.Title className="pl-3 pr-3">
+                    <div className="flex w-full justify-between">
+                      <span className="text-right dark:text-gray-100/50 font-thin">Providers Agreement of service</span>
+                    </div>
+                  </Popup.Title>
+                }
+              >
+                <div className="flex justify-center items-center w-full mt-2 relative pl-4 pr-4 gap-4">
+                  <p>
+                    CONDITIONS THAT THE SERVICE PROVIDER PUTS UPON THEMSELVES TO ENSURE SATISFACTION AND PROPER
+                    COMPLETION FOR COMPENSATION{" "}
+                  </p>
+                </div>
+              </Popup>
+
+              <div className="flex gap-4" onClick={toggleProvidersServiceTACPopup}>
+                <div>
+                  <button
+                    type="submit"
+                    className="my-2 border border-primary/80 bg-primary/10 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary/30 focus:outline-none focus:ring-1 focus:ring-primary/80 "
+                  >
+                    <CheckmarkIcon />
+                  </button>
+                </div>
+
+                <p>
+                  {" "}
+                  I agree to the service providers <span className="text-primary italic">terms and service</span>{" "}
+                </p>
+              </div>
+
+              <Popup
+                isOpen={openProvidersTACgreementPopup}
+                onClose={toggleProvidersServiceTACPopup}
+                className="xl:w-3/5 min-h-64 max-w-full max-h-[80vh] overflow-y-auto relative"
+                title={
+                  <Popup.Title className="pl-3 pr-3 ">
+                    <div className="flex w-full justify-between">
+                      <span className="text-right dark:text-gray-100/50 font-thin">Providers Terms of Service</span>
+                    </div>
+                  </Popup.Title>
+                }
+              >
+                <div className="flex justify-center items-center w-full mt-2 relative pl-4 pr-4 gap-4">
+                  <p>
+                    TERMS AND SERVICE PROVIDED BY THE SERVICE PROVIDER. THIS WILL TYPICALLY INCLUDE CONDITIONS AND
+                    REQUIREMENTS TO ENSURE CUSTOMER CAN PROVIDE SUCCIFIENT AND NECESSARY RESOURCES IN CASE THE PROVIDER
+                    NEEDS
+                  </p>
+                </div>
+              </Popup>
+
               <button
                 type="submit"
-                className="min-w-full border border-primary/80 bg-primary/30 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary/50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-gray-50 sm:order-last "
+                onClick={toggleConfirmationPopup}
+                className="min-w-full my-2 border border-primary/80 bg-primary/30 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary/50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-gray-50 sm:order-last "
               >
-                PAY WITH VARA
+                CONFIRM AND PAY WITH {NATIVE_TOKEN}
               </button>
+
+              <Popup
+                isOpen={openConfirmationPopup}
+                onClose={toggleConfirmationPopup}
+                className="xl:w-3/5 min-h-64 max-w-full max-h-[80vh] overflow-y-auto relative"
+                title={
+                  <Popup.Title className="pl-3 pr-3 uppercase">
+                    <div className="flex w-full justify-between">
+                      <span className="text-left code">{product.title}</span>
+                      <span className="text-right dark:text-gray-100/50 font-thin lowercase">{product.location}</span>
+                    </div>
+                  </Popup.Title>
+                }
+              >
+                <div className="flex justify-center items-center w-full mt-2 relative pl-4 pr-4 gap-4">
+                  <Link
+                    href={`/message/${product.creatorWallet}`}
+                    className="text-center w-full bg-gray-600/20 border border-gray-600 hover:cursor-pointer"
+                  >
+                    <p>PAY AND COMPLETE</p>
+                  </Link>
+                </div>
+              </Popup>
             </div>
           </div>
         </form>

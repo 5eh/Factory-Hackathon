@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 
-import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+// import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
 export default function Purchase({ params }: PageProps) {
   const listing = {
@@ -25,7 +25,6 @@ export default function Purchase({ params }: PageProps) {
   });
   const [customInstructions, setCustomInstructions] = useState("");
   const id = params?.id as Id;
-  const listingID = id;
 
   const handleInputChange = event => {
     const { name, value } = event.target;

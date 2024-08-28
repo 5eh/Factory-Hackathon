@@ -1,15 +1,12 @@
 import { useState } from "react";
 import { FORM_SELECTION } from "../../../../configuration/form";
 import Listings from "./listings";
-import { useGlobalState } from "~~/services/store/store";
 import { NATIVE_TOKEN } from "../../../../configuration/company";
 
 export default function Sorting() {
   const [searchInput, setSearchInput] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [showInUSD, setShowInUSD] = useState(false);
-
-  // const nativeCurrencyPrice = useGlobalState(state => state.nativeCurrency.price);
 
   const toggleCurrency = () => {
     setShowInUSD(!showInUSD);

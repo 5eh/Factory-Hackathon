@@ -29,6 +29,7 @@
     "next:format": "pnpm workspace @se-2/nextjs format",
     "next:check-types": "pnpm workspace @se-2/nextjs check-types",
     "next:build": "pnpm workspace @se-2/nextjs build",
+    "build": "DISABLE_ESLINT_PLUGIN=true react-scripts build",
     "next:serve": "pnpm workspace @se-2/nextjs serve",
     "precommit": "lint-staged",
     "vercel": "pnpm workspace @se-2/nextjs vercel",

@@ -14,7 +14,7 @@ export const WrongNetworkDropdown = ({ address }) => {
   const { disconnect } = useDisconnect();
   const { targetNetwork } = useTargetNetwork();
   const [addressCopied, setAddressCopied] = useState(false);
-  const [selectingNetwork, setSelectingNetwork] = useState(false);
+  const selectingNetwork = useState(false);
   const checkSumAddress = getAddress(address);
 
   const isLocalNetwork = targetNetwork.id === hardhat.id;

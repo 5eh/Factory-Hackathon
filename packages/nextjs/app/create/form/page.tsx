@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { COMPANY_DESCRIPTION, COMPANY_NAME, NATIVE_TOKEN } from "../../../../../configuration/company";
 import Image from "next/image";
@@ -25,7 +25,7 @@ interface FormData {
   shippingMethod: string;
 }
 
-const Form: React.FC = () => {
+const FormContent: React.FC = () => {
   const searchParams = useSearchParams() || new URLSearchParams();
   const category = searchParams.get("id") || "";
   const [city, setCity] = useState("");
@@ -679,6 +679,14 @@ const Form: React.FC = () => {
         </div>
       </form>
     </div>
+  );
+};
+
+const Form: React.FC = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <FormContent />
+    </Suspense>
   );
 };
 

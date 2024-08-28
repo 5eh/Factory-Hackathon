@@ -3,6 +3,7 @@
 import Link from "next/link";
 import React from "react";
 import { FORM_SELECTION } from "../../../../configuration/form";
+import Image from "next/image";
 
 export default function Create() {
   const [customListing, setCustomListing] = React.useState("");
@@ -27,7 +28,7 @@ export default function Create() {
                   },
                 }}
               >
-                <img src={service.imageUrl} alt="" className="absolute inset-0 -z-10 h-full w-full object-cover" />
+                <Image src={service.imageUrl} alt="" className="absolute inset-0 -z-10 h-full w-full object-cover" />
                 <div className="absolute inset-0 -z-10 bg-gradient-to-t from-gray-900 via-gray-900/40 transition-opacity duration-300 ease-in-out opacity-100 hover:opacity-0" />
                 <div className="absolute inset-0 -z-10 dark:bg-gradient-to-b dark:from-gray-900 dark:via-gray-900/10 dark:transition-opacity dark:duration-300 dark:ease-in-out dark:opacity-100 dark:hover:opacity-0" />
 
